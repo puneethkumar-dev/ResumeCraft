@@ -126,12 +126,32 @@ const achievementSchema = new mongoose.Schema({
   }
 });
 
+const generatedContentSchema = new mongoose.Schema({
+  summary: {
+    type: String,
+    default: ''
+  },
+  experience: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
+  },
+  projects: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  }
+}, { _id: false });
+
 const resumeSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User reference is required']
+      required: [true, 'User reference is required'],
+      index: true
     },
     personalInfo: {
       fullName: {
@@ -193,12 +213,13 @@ const resumeSchema = new mongoose.Schema(
       type: [achievementSchema],
       default: []
     },
-    generatedResume: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {}
+    generatedContent: {
+      type: generatedContentSchema,
+      default: () => ({})
     },
     atsScore: {
-      type: Number
+      type: Number,
+      default: 0
     }
   },
   {
