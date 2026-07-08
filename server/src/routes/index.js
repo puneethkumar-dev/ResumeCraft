@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const authRoutes = require('./authRoutes');
 
 /**
  * @route   GET /
@@ -12,5 +13,8 @@ router.get('/', (req, res) => {
     message: 'ResumeCraft API Running'
   });
 });
+
+// Mount Auth router
+router.use('/auth', authRoutes);
 
 module.exports = router;
