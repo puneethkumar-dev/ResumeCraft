@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authRoutes = require('./authRoutes');
+const resumeRoutes = require('./resumeRoutes');
 
 /**
  * @route   GET /
@@ -16,5 +17,8 @@ router.get('/', (req, res) => {
 
 // Mount Auth router
 router.use('/auth', authRoutes);
+
+// Mount Resume router
+router.use('/resumes', resumeRoutes);
 
 module.exports = router;
