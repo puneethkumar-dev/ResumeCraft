@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+const mongoose = require('mongoose');
 const app = require('../src/app');
 const User = require('../src/models/User');
 const Resume = require('../src/models/Resume');
-
-dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const testAIAPI = async () => {
   let server;
