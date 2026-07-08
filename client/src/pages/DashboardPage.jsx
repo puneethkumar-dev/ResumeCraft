@@ -12,29 +12,10 @@ import { Progress, CircularProgress } from "../components/ui/progress";
 import { Dialog } from "../components/ui/dialog";
 import { useToast } from "../contexts/ToastContext";
 
+import resumeApi from "../api/resumeApi";
+
 // Local storage keys
 const RESUMES_KEY = "resumecraft_resumes";
-
-const mockResumes = [
-  {
-    id: "r1",
-    title: "Senior Full Stack Dev - 2026",
-    targetRole: "Senior Software Engineer",
-    template: "Professional Modern",
-    completion: 95,
-    atsScore: 85,
-    lastModified: "2026-07-07T14:30:00Z"
-  },
-  {
-    id: "r2",
-    title: "Project Lead Resume",
-    targetRole: "Technical Product Manager",
-    template: "Classic Executive",
-    completion: 70,
-    atsScore: 62,
-    lastModified: "2026-06-28T09:15:00Z"
-  }
-];
 
 export default function DashboardPage() {
   const [resumes, setResumes] = useState([]);
@@ -44,47 +25,74 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Read from localStorage or write mock defaults if empty
-    const localData = localStorage.getItem(RESUMES_KEY);
-    if (localData) {
-      setResumes(JSON.parse(localData));
-    } else {
-      localStorage.setItem(RESUMES_KEY, JSON.stringify(mockResumes));
-      setResumes(mockResumes);
+  const fetchResumes = async () => {
+    try {
+      const response = await resumeApi.getAll();
+      if (response.success && response.data) {
+        const aligned = response.data.map(r => ({
+          ...r,
+          id: r._id,
+          lastModified: r.updatedAt || r.createdAt
+        }));
+        setResumes(aligned);
+      }
+    } catch (err) {
+      toast({
+        variant: "danger",
+        title: "Failed to Fetch Resumes",
+        description: err.response?.data?.message || "Could not retrieve your resumes."
+      });
     }
+  };
+
+  useEffect(() => {
+    fetchResumes();
   }, []);
 
-  const handleCreateNew = () => {
-    const id = "res-" + Math.random().toString(36).substring(2, 9);
-    const newResume = {
-      id,
+  const handleCreateNew = async () => {
+    const defaultResume = {
       title: "Untitled Resume",
       targetRole: "Software Engineer",
       template: "Modern Minimalist",
       completion: 10,
       atsScore: 0,
-      lastModified: new Date().toISOString(),
-      personalInfo: { name: "", email: "", phone: "", location: "", website: "", summary: "" },
+      personalInfo: { fullName: "Your Name", email: "email@example.com", phone: "", location: "", portfolio: "", linkedin: "", github: "" },
       experience: [],
-      education: [],
+      education: [
+        {
+          institution: "Placeholder School",
+          degree: "Degree",
+          fieldOfStudy: "Field",
+          startDate: "2020",
+          endDate: "2024"
+        }
+      ],
       projects: [],
       skills: [],
       certifications: [],
-      languages: []
+      achievements: []
     };
     
-    const updated = [newResume, ...resumes];
-    localStorage.setItem(RESUMES_KEY, JSON.stringify(updated));
-    setResumes(updated);
-    toast({
-      variant: "success",
-      title: "Resume Draft Created",
-      description: "Redirecting to builder workspace..."
-    });
-    setTimeout(() => {
-      navigate(`/builder/${id}`);
-    }, 500);
+    try {
+      const response = await resumeApi.create(defaultResume);
+      if (response.success && response.data) {
+        toast({
+          variant: "success",
+          title: "Resume Draft Created",
+          description: "Redirecting to builder workspace..."
+        });
+        const newId = response.data._id;
+        setTimeout(() => {
+          navigate(`/builder/${newId}`);
+        }, 500);
+      }
+    } catch (err) {
+      toast({
+        variant: "danger",
+        title: "Creation Failed",
+        description: err.response?.data?.message || "Could not create a new resume draft."
+      });
+    }
   };
 
   const confirmDelete = (id) => {
@@ -92,16 +100,26 @@ export default function DashboardPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
-    const updated = resumes.filter(r => r.id !== selectedResumeId);
-    localStorage.setItem(RESUMES_KEY, JSON.stringify(updated));
-    setResumes(updated);
-    setIsDeleteModalOpen(false);
-    toast({
-      variant: "success",
-      title: "Resume Deleted",
-      description: "The draft was permanently removed."
-    });
+  const handleDelete = async () => {
+    try {
+      const response = await resumeApi.delete(selectedResumeId);
+      if (response.success) {
+        toast({
+          variant: "success",
+          title: "Resume Deleted",
+          description: "The draft was permanently removed."
+        });
+        fetchResumes();
+      }
+    } catch (err) {
+      toast({
+        variant: "danger",
+        title: "Delete Failed",
+        description: err.response?.data?.message || "Could not delete the resume."
+      });
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const filteredResumes = resumes.filter(r => 
