@@ -226,6 +226,17 @@ const testResumeAPI = async () => {
           throw new Error('Expected to successfully retrieve the resume');
         }
 
+        // Verify updated schema defaults
+        if (getSingleAData.data.atsScore !== 0) {
+          throw new Error(`Expected atsScore to default to 0, got ${getSingleAData.data.atsScore}`);
+        }
+        if (!getSingleAData.data.generatedContent || typeof getSingleAData.data.generatedContent !== 'object') {
+          throw new Error('Expected generatedContent to be an object');
+        }
+        if (getSingleAData.data.generatedContent.summary !== '') {
+          throw new Error(`Expected generatedContent.summary to be empty string, got: ${getSingleAData.data.generatedContent.summary}`);
+        }
+
         // 10. Get Single Resume by ID for User B (Not Owner) -> Expect 403 Forbidden
         const getSingleBRes = await fetch(`${baseUrl}/resumes/${resumeId}`, {
           method: 'GET',
@@ -297,7 +308,13 @@ const testResumeAPI = async () => {
           personalInfo: {
             ...validResumeBody.personalInfo,
             fullName: 'User A Updated Name'
-          }
+          },
+          generatedContent: {
+            summary: 'Experienced Backend Developer',
+            experience: ['MOCKED EXP'],
+            projects: ['MOCKED PROJ']
+          },
+          atsScore: 90
         };
         const updateARes = await fetch(`${baseUrl}/resumes/${resumeId}`, {
           method: 'PUT',
@@ -311,6 +328,12 @@ const testResumeAPI = async () => {
         console.log('Update resume A status:', updateARes.status, 'Updated Name:', updateAData.data.personalInfo.fullName);
         if (updateARes.status !== 200 || updateAData.data.personalInfo.fullName !== 'User A Updated Name') {
           throw new Error('Expected 200 OK and updated resume returned');
+        }
+        if (updateAData.data.atsScore !== 90) {
+          throw new Error(`Expected updated atsScore to be 90, got: ${updateAData.data.atsScore}`);
+        }
+        if (updateAData.data.generatedContent.summary !== 'Experienced Backend Developer') {
+          throw new Error(`Expected updated generatedContent.summary, got: ${updateAData.data.generatedContent.summary}`);
         }
 
         // 15. Delete Resume (DELETE) for User B (Not Owner) -> Expect 403 Forbidden

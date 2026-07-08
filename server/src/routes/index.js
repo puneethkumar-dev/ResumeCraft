@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authRoutes = require('./authRoutes');
 const resumeRoutes = require('./resumeRoutes');
+const aiRoutes = require('./aiRoutes');
 
 /**
  * @route   GET /
@@ -20,5 +21,8 @@ router.use('/auth', authRoutes);
 
 // Mount Resume router
 router.use('/resumes', resumeRoutes);
+
+// Mount AI router
+router.use('/ai', aiRoutes);
 
 module.exports = router;
