@@ -66,9 +66,7 @@ export default function DashboardLayout() {
   }, [token]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/logout");
   };
 
   if (!token) return null;
