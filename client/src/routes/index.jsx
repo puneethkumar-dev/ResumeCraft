@@ -24,6 +24,7 @@ const ResumePreviewPage = lazy(() => import("../pages/ResumePreviewPage"));
 const ATSAnalyzerPage = lazy(() => import("../pages/ATSAnalyzerPage"));
 const TemplatesPage = lazy(() => import("../pages/TemplatesPage"));
 const SettingsPage = lazy(() => import("../pages/SettingsPage"));
+const LogoutPage = lazy(() => import("../pages/auth/LogoutPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 export const router = createBrowserRouter([
@@ -63,6 +64,14 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "logout",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <LogoutPage />
+      </Suspense>
+    ),
   },
   {
     element: <DashboardLayout />,

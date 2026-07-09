@@ -23,6 +23,14 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
   // Dark Mode side effects
   useEffect(() => {
     if (darkMode) {
@@ -35,9 +43,7 @@ export default function DashboardLayout() {
   }, [darkMode]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/logout");
   };
 
   const currentUser = JSON.parse(localStorage.getItem("user") || '{"name": "Puneeth Kumar", "email": "puneeth@example.com"}');
