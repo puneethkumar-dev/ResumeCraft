@@ -4,6 +4,7 @@ import * as zod from "zod";
 import { Link, useNavigate } from "react-router-dom";
 import { Sparkles, Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import authApi from "../../api/authApi";
 
 const loginSchema = zod.object({
   email: zod.string().min(1, "Email is required").email("Invalid email format"),
@@ -25,16 +26,16 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      // Mock Login API response
-      await new Promise(resolve => setTimeout(resolve, 800));
-      localStorage.setItem("token", "dummy-jwt-token-12345");
-      localStorage.setItem("user", JSON.stringify({
-        name: "Puneeth Kumar",
-        email: data.email
-      }));
-      navigate("/dashboard");
+      const response = await authApi.login(data.email, data.password);
+      if (response.success) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        navigate("/dashboard");
+      } else {
+        setError(response.message || "Invalid email or password");
+      }
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError(err.response?.data?.message || "Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }

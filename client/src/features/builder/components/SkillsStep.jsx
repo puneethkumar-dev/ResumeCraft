@@ -46,7 +46,7 @@ export default function SkillsStep() {
   };
 
   const handleAiSuggest = async () => {
-    if (!resumeData?.personalInfo?.title) {
+    if (!resumeData?.targetRole) {
       toast({
         variant: "warning",
         title: "Target Title Needed",
@@ -58,9 +58,9 @@ export default function SkillsStep() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       let suggested = ["React", "JavaScript", "TypeScript", "HTML5/CSS3", "Git", "REST APIs", "Agile Methodologies"];
-      if (resumeData.personalInfo.title.toLowerCase().includes("backend")) {
+      if (resumeData.targetRole.toLowerCase().includes("backend")) {
         suggested = ["Node.js", "Express", "Python", "SQL", "MongoDB", "Docker", "REST APIs", "AWS", "Git"];
-      } else if (resumeData.personalInfo.title.toLowerCase().includes("product")) {
+      } else if (resumeData.targetRole.toLowerCase().includes("product")) {
         suggested = ["Product Roadmapping", "Agile/Scrum", "SQL", "Jira", "User Research", "Market Analysis", "A/B Testing"];
       }
 
@@ -77,7 +77,7 @@ export default function SkillsStep() {
         toast({
           variant: "success",
           title: "Skills Imported",
-          description: `Added ${toAdd.length} professional skills for ${resumeData.personalInfo.title}.`
+          description: `Added ${toAdd.length} professional skills for ${resumeData.targetRole}.`
         });
       }
     } catch (err) {

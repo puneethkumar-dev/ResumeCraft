@@ -13,6 +13,8 @@ import { useToast } from "../contexts/ToastContext";
 
 const RESUMES_KEY = "resumecraft_resumes";
 
+import resumeApi from "../api/resumeApi";
+
 export default function ATSAnalyzerPage() {
   const [resumes, setResumes] = useState([]);
   const [selectedResumeId, setSelectedResumeId] = useState("");
@@ -22,14 +24,21 @@ export default function ATSAnalyzerPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const localData = localStorage.getItem(RESUMES_KEY);
-    if (localData) {
-      const parsed = JSON.parse(localData);
-      setResumes(parsed);
-      if (parsed.length > 0) {
-        setSelectedResumeId(parsed[0].id);
+    const fetchResumes = async () => {
+      try {
+        const response = await resumeApi.getAll();
+        if (response.success && response.data) {
+          const aligned = response.data.map(r => ({ ...r, id: r._id }));
+          setResumes(aligned);
+          if (aligned.length > 0) {
+            setSelectedResumeId(aligned[0].id);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load resumes:", err);
       }
-    }
+    };
+    fetchResumes();
   }, []);
 
   const handleRunAnalysis = async () => {
@@ -94,15 +103,23 @@ export default function ATSAnalyzerPage() {
 
       setReport(mockReport);
 
-      // Save updated score to resume list in local storage
-      const localData = localStorage.getItem(RESUMES_KEY);
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        const idx = parsed.findIndex(r => r.id === selectedResumeId);
-        if (idx !== -1) {
-          parsed[idx].atsScore = score;
-          localStorage.setItem(RESUMES_KEY, JSON.stringify(parsed));
+      // Save updated score to resume in database
+      try {
+        const targetResume = resumes.find(r => r.id === selectedResumeId);
+        if (targetResume) {
+          const payload = { ...targetResume };
+          delete payload._id;
+          delete payload.user;
+          delete payload.createdAt;
+          delete payload.updatedAt;
+          delete payload.id;
+          
+          payload.atsScore = score;
+          
+          await resumeApi.update(selectedResumeId, payload);
         }
+      } catch (err) {
+        console.error("Failed to save ATS score:", err);
       }
 
       toast({

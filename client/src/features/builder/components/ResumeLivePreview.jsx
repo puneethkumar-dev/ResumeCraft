@@ -2,12 +2,16 @@ import { useResumeForm } from "../../../contexts/ResumeFormContext";
 import { Mail, Phone, MapPin, Globe } from "lucide-react";
 import { cn } from "../../../utils/cn";
 
-export default function ResumeLivePreview({ scale = 1 }) {
+export default function ResumeLivePreview({ scale = 1, useAI = false }) {
   const { resumeData } = useResumeForm();
 
   if (!resumeData) return null;
 
-  const { personalInfo = {}, experience = [], education = [], projects = [], skills = [] } = resumeData;
+  const { personalInfo = {}, experience = [], education = [], projects = [], skills = [], generatedContent = {} } = resumeData;
+
+  const displaySummary = (useAI && generatedContent?.summary) ? generatedContent.summary : resumeData.summary;
+  const displayExperience = (useAI && generatedContent?.experience?.length > 0) ? generatedContent.experience : experience;
+  const displayProjects = (useAI && generatedContent?.projects?.length > 0) ? generatedContent.projects : projects;
 
   // Modern Minimalist Template Rendering
   const renderMinimalist = () => (
@@ -15,10 +19,10 @@ export default function ResumeLivePreview({ scale = 1 }) {
       {/* Header */}
       <div className="border-b-2 border-slate-100 pb-5">
         <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
-          {personalInfo.name || "YOUR NAME"}
+          {personalInfo.fullName || "YOUR NAME"}
         </h1>
         <p className="text-sm font-bold text-violet-600 dark:text-violet-400 mt-1.5 tracking-wide uppercase">
-          {personalInfo.title || "Target Professional Title"}
+          {resumeData.targetRole || "Target Professional Title"}
         </p>
         
         {/* Contact info grid */}
@@ -26,25 +30,27 @@ export default function ResumeLivePreview({ scale = 1 }) {
           {personalInfo.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3 shrink-0" /> {personalInfo.email}</span>}
           {personalInfo.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3 shrink-0" /> {personalInfo.phone}</span>}
           {personalInfo.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3 shrink-0" /> {personalInfo.location}</span>}
-          {personalInfo.website && <span className="flex items-center gap-1"><Globe className="h-3 w-3 shrink-0" /> {personalInfo.website}</span>}
+          {personalInfo.portfolio && <span className="flex items-center gap-1"><Globe className="h-3 w-3 shrink-0" /> {personalInfo.portfolio}</span>}
+          {personalInfo.linkedin && <span className="flex items-center gap-1">LinkedIn: {personalInfo.linkedin}</span>}
+          {personalInfo.github && <span className="flex items-center gap-1">GitHub: {personalInfo.github}</span>}
         </div>
       </div>
 
       {/* Summary */}
-      {personalInfo.summary && (
+      {displaySummary && (
         <div className="py-4 border-b border-slate-100">
           <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-1.5">Profile</h2>
-          <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-350">{personalInfo.summary}</p>
+          <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-350">{displaySummary}</p>
         </div>
       )}
 
       {/* Experience */}
-      {experience.length > 0 && (
+      {displayExperience.length > 0 && (
         <div className="py-4 border-b border-slate-100">
           <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Experience</h2>
           <div className="space-y-4">
-            {experience.map((exp) => (
-              <div key={exp.id} className="space-y-1">
+            {displayExperience.map((exp) => (
+              <div key={exp.id || exp._id} className="space-y-1">
                 <div className="flex justify-between items-baseline">
                   <h3 className="text-xs font-bold text-slate-900 dark:text-white">{exp.role || "Job Title"}</h3>
                   <span className="text-[10px] text-slate-400 font-semibold">{exp.startDate} - {exp.endDate}</span>
@@ -70,7 +76,7 @@ export default function ResumeLivePreview({ scale = 1 }) {
           <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Education</h2>
           <div className="space-y-3">
             {education.map((edu) => (
-              <div key={edu.id} className="space-y-1">
+              <div key={edu.id || edu._id} className="space-y-1">
                 <div className="flex justify-between items-baseline">
                   <h3 className="text-xs font-bold text-slate-900 dark:text-white">
                     {edu.degree || "Degree"} {edu.fieldOfStudy ? `in ${edu.fieldOfStudy}` : ""}
@@ -78,8 +84,8 @@ export default function ResumeLivePreview({ scale = 1 }) {
                   <span className="text-[10px] text-slate-400 font-semibold">{edu.startDate} - {edu.endDate}</span>
                 </div>
                 <div className="flex justify-between items-baseline text-[10px] text-slate-500 font-semibold">
-                  <span>{edu.school || "University"}</span>
-                  {edu.gpa && <span>GPA: {edu.gpa}</span>}
+                  <span>{edu.institution || edu.school || "University"}</span>
+                  {edu.cgpa && <span>GPA: {edu.cgpa}</span>}
                 </div>
               </div>
             ))}
@@ -88,18 +94,20 @@ export default function ResumeLivePreview({ scale = 1 }) {
       )}
 
       {/* Projects */}
-      {projects.length > 0 && (
+      {displayProjects.length > 0 && (
         <div className="py-4 border-b border-slate-100">
           <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Projects</h2>
           <div className="space-y-3">
-            {projects.map((proj) => (
-              <div key={proj.id} className="space-y-1">
+            {displayProjects.map((proj) => (
+              <div key={proj.id || proj._id} className="space-y-1">
                 <div className="flex justify-between items-baseline">
-                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">{proj.name || "Project Name"}</h3>
-                  {proj.link && <span className="text-[9px] text-violet-500 lowercase font-medium">{proj.link}</span>}
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">{proj.title || "Project Title"}</h3>
+                  {proj.liveDemo && <span className="text-[9px] text-violet-500 lowercase font-medium">{proj.liveDemo}</span>}
                 </div>
                 {proj.technologies && (
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{proj.technologies}</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                    {Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies}
+                  </p>
                 )}
                 {proj.description && (
                   <p className="text-[10px] leading-relaxed text-slate-600 dark:text-slate-350 whitespace-pre-line">
@@ -134,10 +142,10 @@ export default function ResumeLivePreview({ scale = 1 }) {
       {/* Header */}
       <div className="border-b border-double border-slate-300 pb-4">
         <h1 className="text-2xl font-bold tracking-wide text-slate-950 dark:text-white leading-none">
-          {personalInfo.name || "YOUR NAME"}
+          {personalInfo.fullName || "YOUR NAME"}
         </h1>
         <p className="text-xs italic text-slate-500 mt-1">
-          {personalInfo.title || "Target Professional Title"}
+          {resumeData.targetRole || "Target Professional Title"}
         </p>
         
         {/* Contact info list */}
@@ -145,25 +153,27 @@ export default function ResumeLivePreview({ scale = 1 }) {
           {personalInfo.email && <span>{personalInfo.email}</span>}
           {personalInfo.phone && <span>&bull; {personalInfo.phone}</span>}
           {personalInfo.location && <span>&bull; {personalInfo.location}</span>}
-          {personalInfo.website && <span>&bull; {personalInfo.website}</span>}
+          {personalInfo.portfolio && <span>&bull; {personalInfo.portfolio}</span>}
+          {personalInfo.linkedin && <span>&bull; LinkedIn: {personalInfo.linkedin}</span>}
+          {personalInfo.github && <span>&bull; GitHub: {personalInfo.github}</span>}
         </div>
       </div>
 
       {/* Summary */}
-      {personalInfo.summary && (
+      {displaySummary && (
         <div className="py-3 text-left">
           <h2 className="text-xs font-bold uppercase text-slate-950 dark:text-white border-b border-slate-300 pb-0.5 mb-1.5 tracking-wider">Executive Profile</h2>
-          <p className="text-[10px] italic leading-relaxed text-slate-650 dark:text-slate-300">{personalInfo.summary}</p>
+          <p className="text-[10px] italic leading-relaxed text-slate-700 dark:text-slate-300">{displaySummary}</p>
         </div>
       )}
 
       {/* Experience */}
-      {experience.length > 0 && (
+      {displayExperience.length > 0 && (
         <div className="py-3 text-left">
-          <h2 className="text-xs font-bold uppercase text-slate-950 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Professional Experience</h2>
+          <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Professional Experience</h2>
           <div className="space-y-3">
-            {experience.map((exp) => (
-              <div key={exp.id} className="space-y-0.5">
+            {displayExperience.map((exp) => (
+              <div key={exp.id || exp._id} className="space-y-0.5">
                 <div className="flex justify-between items-baseline font-bold text-[10px] text-slate-900 dark:text-white">
                   <span>{exp.company || "Company"} &bull; {exp.location}</span>
                   <span className="font-normal text-[9px] text-slate-500">{exp.startDate} - {exp.endDate}</span>
@@ -172,7 +182,7 @@ export default function ResumeLivePreview({ scale = 1 }) {
                   {exp.role || "Job Title"}
                 </div>
                 {exp.description && (
-                  <p className="text-[9.5px] leading-relaxed text-slate-650 dark:text-slate-300 whitespace-pre-line pl-2">
+                  <p className="text-[9.5px] leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-line pl-2">
                     {exp.description}
                   </p>
                 )}
@@ -185,17 +195,17 @@ export default function ResumeLivePreview({ scale = 1 }) {
       {/* Education */}
       {education.length > 0 && (
         <div className="py-3 text-left">
-          <h2 className="text-xs font-bold uppercase text-slate-950 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Education & Credentials</h2>
+          <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Education & Credentials</h2>
           <div className="space-y-2">
             {education.map((edu) => (
-              <div key={edu.id} className="space-y-0.5">
+              <div key={edu.id || edu._id} className="space-y-0.5">
                 <div className="flex justify-between items-baseline font-bold text-[10px] text-slate-900 dark:text-white">
-                  <span>{edu.school || "University"}</span>
+                  <span>{edu.institution || edu.school || "University"}</span>
                   <span className="font-normal text-[9px] text-slate-500">{edu.startDate} - {edu.endDate}</span>
                 </div>
                 <div className="flex justify-between text-[9.5px] text-slate-600 dark:text-slate-400">
                   <span>{edu.degree || "Degree"} {edu.fieldOfStudy ? `in ${edu.fieldOfStudy}` : ""}</span>
-                  {edu.gpa && <span>GPA: {edu.gpa}</span>}
+                  {edu.cgpa && <span>GPA: {edu.cgpa}</span>}
                 </div>
               </div>
             ))}
@@ -204,18 +214,18 @@ export default function ResumeLivePreview({ scale = 1 }) {
       )}
 
       {/* Projects */}
-      {projects.length > 0 && (
+      {displayProjects.length > 0 && (
         <div className="py-3 text-left">
-          <h2 className="text-xs font-bold uppercase text-slate-950 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Key Projects</h2>
+          <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Key Projects</h2>
           <div className="space-y-2">
-            {projects.map((proj) => (
-              <div key={proj.id} className="space-y-0.5">
+            {displayProjects.map((proj) => (
+              <div key={proj.id || proj._id} className="space-y-0.5">
                 <div className="flex justify-between items-baseline font-bold text-[10px] text-slate-900 dark:text-white">
-                  <span>{proj.name || "Project Name"} {proj.technologies ? `(${proj.technologies})` : ""}</span>
-                  {proj.link && <span className="font-normal text-[8.5px] text-slate-500">{proj.link}</span>}
+                  <span>{proj.title || "Project Title"} {proj.technologies ? `(${Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies})` : ""}</span>
+                  {proj.liveDemo && <span className="font-normal text-[8.5px] text-slate-500">{proj.liveDemo}</span>}
                 </div>
                 {proj.description && (
-                  <p className="text-[9.5px] leading-relaxed text-slate-655 dark:text-slate-300 pl-2">
+                  <p className="text-[9.5px] leading-relaxed text-slate-700 dark:text-slate-300 pl-2">
                     {proj.description}
                   </p>
                 )}
@@ -228,8 +238,8 @@ export default function ResumeLivePreview({ scale = 1 }) {
       {/* Skills */}
       {skills.length > 0 && (
         <div className="py-3 text-left">
-          <h2 className="text-xs font-bold uppercase text-slate-950 dark:text-white border-b border-slate-300 pb-0.5 mb-1.5 tracking-wider">Core Proficiencies</h2>
-          <p className="text-[9.5px] text-slate-750 dark:text-slate-350 leading-relaxed font-semibold">
+          <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-1.5 tracking-wider">Core Proficiencies</h2>
+          <p className="text-[9.5px] text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
             {skills.join("  |  ")}
           </p>
         </div>
@@ -240,7 +250,7 @@ export default function ResumeLivePreview({ scale = 1 }) {
   return (
     <div 
       className={cn(
-        "bg-white dark:bg-slate-950 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-xs aspect-[1/1.4] transition-all duration-300 mx-auto select-text origin-top",
+        "bg-white dark:bg-slate-955 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-xs aspect-[1/1.4] transition-all duration-300 mx-auto select-text origin-top",
         "w-full max-w-[620px]"
       )}
       style={{ transform: `scale(${scale})` }}
