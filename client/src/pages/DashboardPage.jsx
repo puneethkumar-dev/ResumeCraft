@@ -123,12 +123,12 @@ export default function DashboardPage() {
   };
 
   const filteredResumes = resumes.filter(r => 
-    r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    r.targetRole.toLowerCase().includes(searchQuery.toLowerCase())
+    (r.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (r.targetRole || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const averageAts = resumes.length 
-    ? Math.round(resumes.reduce((acc, curr) => acc + curr.atsScore, 0) / resumes.length) 
+    ? Math.round(resumes.reduce((acc, curr) => acc + (curr.atsScore || 0), 0) / resumes.length) 
     : 0;
 
   return (

@@ -54,9 +54,9 @@ export default function DashboardLayout() {
     const fetchUserProfile = async () => {
       try {
         const response = await authApi.getProfile();
-        if (response.success && response.data) {
-          setUser(response.data);
-          localStorage.setItem("user", JSON.stringify(response.data));
+        if (response.success && response.data && response.data.user) {
+          setUser(response.data.user);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
         }
       } catch (err) {
         console.error("Failed to load user profile:", err);
@@ -237,7 +237,7 @@ export default function DashboardLayout() {
             {/* Profile Dropdown Indicator */}
             <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3">
               <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow">
-                {currentUser.name.substring(0, 2)}
+                {(currentUser?.name || "US").substring(0, 2)}
               </div>
               <div className="hidden lg:block text-left">
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{currentUser.name}</p>
