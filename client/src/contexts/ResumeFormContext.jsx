@@ -1,10 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "./ToastContext";
+import resumeApi from "../api/resumeApi";
 
 const ResumeFormContext = createContext(null);
-
-const RESUMES_KEY = "resumecraft_resumes";
 
 const emptyResumeState = {
   title: "My New Resume",
@@ -13,20 +12,21 @@ const emptyResumeState = {
   completion: 10,
   atsScore: 0,
   personalInfo: {
-    name: "",
-    title: "",
+    fullName: "",
     email: "",
     phone: "",
     location: "",
-    website: "",
-    summary: ""
+    portfolio: "",
+    linkedin: "",
+    github: ""
   },
+  summary: "",
   experience: [],
   education: [],
   projects: [],
-  skills: [], // array of strings or { category, items: [] }
+  skills: [], // array of objects matching { category, items: [] }
   certifications: [],
-  languages: []
+  achievements: []
 };
 
 export function ResumeFormProvider({ children }) {
@@ -40,51 +40,77 @@ export function ResumeFormProvider({ children }) {
 
   // Load resume data
   useEffect(() => {
-    if (!id) {
-      setLoading(true);
-      const localData = localStorage.getItem(RESUMES_KEY);
-      const list = localData ? JSON.parse(localData) : [];
-      
-      if (list.length > 0) {
-        // Sort by lastModified descending to find most recently edited resume
-        const sorted = [...list].sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
-        navigate(`/builder/${sorted[0].id}`, { replace: true });
-      } else {
-        // Auto-create a default resume
-        const newId = "res-" + Math.random().toString(36).substring(2, 9);
-        const newResume = {
-          ...emptyResumeState,
-          id: newId,
-          title: "My New Resume",
-          lastModified: new Date().toISOString()
-        };
-        localStorage.setItem(RESUMES_KEY, JSON.stringify([newResume]));
-        navigate(`/builder/${newId}`, { replace: true });
+    const loadResume = async () => {
+      if (!id) {
+        setLoading(true);
+        try {
+          const response = await resumeApi.getAll();
+          const list = response.data || [];
+          if (list.length > 0) {
+            // Sort by updatedAt descending to find most recently edited resume
+            const sorted = [...list].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            navigate(`/builder/${sorted[0]._id}`, { replace: true });
+          } else {
+            // Auto-create a default resume on the backend
+            const responseCreate = await resumeApi.create({
+              ...emptyResumeState,
+              title: "My New Resume"
+            });
+            const newResumeId = responseCreate.data._id;
+            navigate(`/builder/${newResumeId}`, { replace: true });
+          }
+        } catch (err) {
+          toast({
+            variant: "danger",
+            title: "Error Loading Resumes",
+            description: "Could not fetch your resumes from the server."
+          });
+          navigate("/dashboard");
+        }
+        return;
       }
-      return;
-    }
 
-    setLoading(true);
-    const localData = localStorage.getItem(RESUMES_KEY);
-    const list = localData ? JSON.parse(localData) : [];
-    const item = list.find((r) => r.id === id);
+      setLoading(true);
+      try {
+        const response = await resumeApi.getById(id);
+        if (response.success && response.data) {
+          const item = response.data;
+          
+          const fetchedSkills = item.skills || [];
+          let flatSkills = [];
+          if (fetchedSkills.length > 0) {
+            if (typeof fetchedSkills[0] === 'string') {
+              flatSkills = fetchedSkills;
+            } else {
+              flatSkills = fetchedSkills.reduce((acc, cat) => {
+                return acc.concat(cat.items || []);
+              }, []);
+            }
+          }
 
-    if (item) {
-      // Ensure default properties are present if they were absent
-      setResumeData({
-        ...emptyResumeState,
-        ...item,
-        personalInfo: { ...emptyResumeState.personalInfo, ...(item.personalInfo || {}) }
-      });
-    } else {
-      toast({
-        variant: "danger",
-        title: "Resume Not Found",
-        description: "Returning to your dashboard."
-      });
-      navigate("/dashboard");
-    }
-    setLoading(false);
+          setResumeData({
+            ...emptyResumeState,
+            ...item,
+            id: item._id, // Map database _id to local id variable
+            skills: flatSkills,
+            personalInfo: { ...emptyResumeState.personalInfo, ...(item.personalInfo || {}) }
+          });
+        } else {
+          throw new Error("Resume not found");
+        }
+      } catch (err) {
+        toast({
+          variant: "danger",
+          title: "Resume Not Found",
+          description: "Returning to your dashboard."
+        });
+        navigate("/dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadResume();
   }, [id, navigate, toast]);
 
   // Compute form completion percentage
@@ -92,8 +118,8 @@ export function ResumeFormProvider({ children }) {
     let score = 0;
     let total = 6; // PersonalInfo, Summary, Experience, Education, Projects, Skills
 
-    if (data.personalInfo?.name && data.personalInfo?.email) score += 1;
-    if (data.personalInfo?.summary) score += 1;
+    if (data.personalInfo?.fullName && data.personalInfo?.email) score += 1;
+    if (data.summary) score += 1;
     if (data.experience?.length > 0) score += 1;
     if (data.education?.length > 0) score += 1;
     if (data.projects?.length > 0) score += 1;
@@ -102,27 +128,35 @@ export function ResumeFormProvider({ children }) {
     return Math.round((score / total) * 100);
   };
 
-  // Autosave to localStorage
-  const saveResume = useCallback((updatedData) => {
+  // Autosave to backend database
+  const saveResume = useCallback(async (updatedData) => {
     if (!id || !updatedData) return;
 
-    // Calculate completion score dynamically
+    // Instantly calculate completion and set local react state to keep UI responsive
     const completion = calculateCompletion(updatedData);
     const finalData = {
       ...updatedData,
-      completion,
-      lastModified: new Date().toISOString()
+      completion
     };
-
     setResumeData(finalData);
 
-    const localData = localStorage.getItem(RESUMES_KEY);
-    const list = localData ? JSON.parse(localData) : [];
-    const index = list.findIndex((r) => r.id === id);
-    
-    if (index !== -1) {
-      list[index] = finalData;
-      localStorage.setItem(RESUMES_KEY, JSON.stringify(list));
+    try {
+      const payload = { ...finalData };
+      // Strip automatically generated fields and local id mapping to prevent Mongoose validation warnings
+      delete payload._id;
+      delete payload.user;
+      delete payload.createdAt;
+      delete payload.updatedAt;
+      delete payload.id;
+      
+      const finalSkills = Array.isArray(finalData.skills)
+        ? [{ category: "Core Skills", items: finalData.skills }]
+        : [];
+      payload.skills = finalSkills;
+
+      await resumeApi.update(id, payload);
+    } catch (err) {
+      console.error("Autosave to database failed:", err);
     }
   }, [id]);
 
@@ -156,7 +190,7 @@ export function ResumeFormProvider({ children }) {
 
   const updateListItem = (key, itemId, fields) => {
     const updatedList = (resumeData[key] || []).map((item) => {
-      if (item.id === itemId) {
+      if (item._id === itemId || item.id === itemId) {
         return { ...item, ...fields };
       }
       return item;
@@ -172,7 +206,7 @@ export function ResumeFormProvider({ children }) {
   const removeListItem = (key, itemId) => {
     const updated = {
       ...resumeData,
-      [key]: (resumeData[key] || []).filter((item) => item.id !== itemId)
+      [key]: (resumeData[key] || []).filter((item) => item._id !== itemId && item.id !== itemId)
     };
     saveResume(updated);
   };

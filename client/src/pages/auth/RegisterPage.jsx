@@ -4,6 +4,7 @@ import * as zod from "zod";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import authApi from "../../api/authApi";
 
 const registerSchema = zod.object({
   name: zod.string().min(2, "Name must be at least 2 characters"),
@@ -30,15 +31,16 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      localStorage.setItem("token", "dummy-jwt-token-12345");
-      localStorage.setItem("user", JSON.stringify({
-        name: data.name,
-        email: data.email
-      }));
-      navigate("/dashboard");
+      const response = await authApi.register(data.name, data.email, data.password);
+      if (response.success) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        navigate("/dashboard");
+      } else {
+        setError(response.message || "Registration failed");
+      }
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

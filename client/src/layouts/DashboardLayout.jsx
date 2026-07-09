@@ -5,6 +5,7 @@ import {
   Sparkles, Compass, CheckSquare, LogOut, Menu, X, Sun, Moon, Bell, HelpCircle
 } from "lucide-react";
 import { cn } from "../utils/cn";
+import authApi from "../api/authApi";
 
 const sidebarItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -20,16 +21,21 @@ export default function DashboardLayout() {
     return localStorage.getItem("theme") === "dark" || 
       (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
   });
+  const [user, setUser] = useState(() => {
+    const cached = localStorage.getItem("user");
+    return cached ? JSON.parse(cached) : { name: "User", email: "" };
+  });
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect to login if not authenticated
+  const token = localStorage.getItem("token");
+
+  // Redirect to login if token is missing
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [token, navigate]);
 
   // Dark Mode side effects
   useEffect(() => {
@@ -42,11 +48,30 @@ export default function DashboardLayout() {
     }
   }, [darkMode]);
 
+  // Fetch dynamic user profile details
+  useEffect(() => {
+    if (!token) return;
+    const fetchUserProfile = async () => {
+      try {
+        const response = await authApi.getProfile();
+        if (response.success && response.data && response.data.user) {
+          setUser(response.data.user);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        }
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
+      }
+    };
+    fetchUserProfile();
+  }, [token]);
+
   const handleLogout = () => {
     navigate("/logout");
   };
 
-  const currentUser = JSON.parse(localStorage.getItem("user") || '{"name": "Puneeth Kumar", "email": "puneeth@example.com"}');
+  if (!token) return null;
+
+  const currentUser = user;
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-200">
@@ -210,7 +235,7 @@ export default function DashboardLayout() {
             {/* Profile Dropdown Indicator */}
             <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3">
               <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow">
-                {currentUser.name.substring(0, 2)}
+                {(currentUser?.name || "US").substring(0, 2)}
               </div>
               <div className="hidden lg:block text-left">
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{currentUser.name}</p>

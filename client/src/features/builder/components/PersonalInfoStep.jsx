@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useToast } from "../../../contexts/ToastContext";
 
 export default function PersonalInfoStep() {
-  const { resumeData, updatePersonalInfo } = useResumeForm();
+  const { resumeData, updatePersonalInfo, updateGeneralFields } = useResumeForm();
   const [aiGenerating, setAiGenerating] = useState(false);
   const { toast } = useToast();
 
@@ -17,7 +17,7 @@ export default function PersonalInfoStep() {
   };
 
   const handleGenerateSummary = async () => {
-    if (!resumeData.personalInfo?.title) {
+    if (!resumeData.targetRole) {
       toast({
         variant: "warning",
         title: "Title Required",
@@ -28,12 +28,12 @@ export default function PersonalInfoStep() {
     setAiGenerating(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1200));
-      const mockSummary = `Results-oriented ${resumeData.personalInfo.title} with a proven track record of designing, building, and deploying scalable software architectures. Passionate about optimization, clean code practices, and leading high-performing cross-functional agile teams to deliver impactful products that align with strategic business operations.`;
-      updatePersonalInfo({ summary: mockSummary });
+      const mockSummary = `Results-oriented ${resumeData.targetRole} with a proven track record of designing, building, and deploying scalable software architectures. Passionate about optimization, clean code practices, and leading high-performing cross-functional agile teams to deliver impactful products that align with strategic business operations.`;
+      updateGeneralFields({ summary: mockSummary });
       toast({
         variant: "success",
         title: "AI Summary Generated",
-        description: "A summary tailored for " + resumeData.personalInfo.title + " has been written."
+        description: "A summary tailored for " + resumeData.targetRole + " has been written."
       });
     } catch (err) {
       // ignore
@@ -54,18 +54,18 @@ export default function PersonalInfoStep() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Full Name"
-          name="name"
+          name="fullName"
           placeholder="e.g. Puneeth Kumar"
-          value={info.name || ""}
+          value={info.fullName || ""}
           onChange={handleFieldChange}
           icon={User}
         />
         <Input
           label="Target Job Title"
-          name="title"
+          name="targetRole"
           placeholder="e.g. Senior Software Engineer"
-          value={info.title || ""}
-          onChange={handleFieldChange}
+          value={resumeData.targetRole || ""}
+          onChange={(e) => updateGeneralFields({ targetRole: e.target.value })}
         />
         <Input
           label="Email Address"
@@ -93,12 +93,26 @@ export default function PersonalInfoStep() {
           icon={MapPin}
         />
         <Input
-          label="Website / portfolio Link"
-          name="website"
-          placeholder="e.g. github.com/puneeth"
-          value={info.website || ""}
+          label="Website / Portfolio Link"
+          name="portfolio"
+          placeholder="e.g. portfolio.com/puneeth"
+          value={info.portfolio || ""}
           onChange={handleFieldChange}
           icon={Globe}
+        />
+        <Input
+          label="LinkedIn Link"
+          name="linkedin"
+          placeholder="e.g. linkedin.com/in/puneeth"
+          value={info.linkedin || ""}
+          onChange={handleFieldChange}
+        />
+        <Input
+          label="GitHub Link"
+          name="github"
+          placeholder="e.g. github.com/puneeth"
+          value={info.github || ""}
+          onChange={handleFieldChange}
         />
       </div>
 
@@ -121,8 +135,8 @@ export default function PersonalInfoStep() {
         <Textarea
           name="summary"
           placeholder="Describe your career goals, highlights, and primary strengths..."
-          value={info.summary || ""}
-          onChange={handleFieldChange}
+          value={resumeData.summary || ""}
+          onChange={(e) => updateGeneralFields({ summary: e.target.value })}
           rows={5}
         />
       </div>

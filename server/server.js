@@ -3,6 +3,19 @@ const dotenv = require('dotenv');
 // Load environment variables
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnv = ['PORT', 'MONGO_URI', 'JWT_SECRET', 'GEMINI_API_KEY'];
+const missingEnv = [];
+requiredEnv.forEach((envVar) => {
+  if (!process.env[envVar]) {
+    missingEnv.push(envVar);
+  }
+});
+if (missingEnv.length > 0) {
+  console.error(`CRITICAL CONFIG ERROR: Missing environment variables: ${missingEnv.join(', ')}`);
+  process.exit(1);
+}
+
 const app = require('./src/app');
 const connectDB = require('./src/config/database');
 
