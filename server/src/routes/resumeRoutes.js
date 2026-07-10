@@ -26,7 +26,7 @@ router.get('/', protect, getAllResumes);
 router.get('/:id', protect, idParamRules, validate, getResumeById);
 
 // Update a resume by ID
-router.put('/:id', protect, idParamRules, validate, resumeRules, validate, updateResume);
+router.put('/:id', protect, idParamRules, validate, updateResume);
 
 // Delete a resume by ID
 router.delete('/:id', protect, idParamRules, validate, deleteResume);

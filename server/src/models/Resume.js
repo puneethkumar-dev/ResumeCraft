@@ -220,6 +220,10 @@ const resumeSchema = new mongoose.Schema(
     atsScore: {
       type: Number,
       default: 0
+    },
+    analysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null
     }
   },
   {

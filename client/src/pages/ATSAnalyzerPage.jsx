@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { 
   Sparkles, CheckSquare, AlertTriangle, CheckCircle, 
   HelpCircle, RefreshCw, FileText, ArrowRight, XCircle 
@@ -11,9 +12,8 @@ import { Select } from "../components/ui/select";
 import { CircularProgress } from "../components/ui/progress";
 import { useToast } from "../contexts/ToastContext";
 
-const RESUMES_KEY = "resumecraft_resumes";
-
 import resumeApi from "../api/resumeApi";
+import aiApi from "../api/aiApi";
 
 export default function ATSAnalyzerPage() {
   const [resumes, setResumes] = useState([]);
@@ -21,6 +21,8 @@ export default function ATSAnalyzerPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [report, setReport] = useState(null);
+  const [validationError, setValidationError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,104 +43,84 @@ export default function ATSAnalyzerPage() {
     fetchResumes();
   }, []);
 
+  const handleJobDescriptionChange = (e) => {
+    setJobDescription(e.target.value);
+    if (validationError) {
+      setValidationError(null);
+      setErrorMessage("");
+    }
+  };
+
+  const handleResumeChange = (e) => {
+    setSelectedResumeId(e.target.value);
+    if (validationError) {
+      setValidationError(null);
+      setErrorMessage("");
+    }
+  };
+
   const handleRunAnalysis = async () => {
     if (!selectedResumeId) {
       toast({ variant: "warning", title: "Select a Resume", description: "Choose a resume to analyze." });
       return;
     }
-    if (!jobDescription.trim() || jobDescription.trim().length < 20) {
-      toast({ variant: "warning", title: "Job Description Required", description: "Provide a detailed job description (minimum 20 characters)." });
+    if (jobDescription.trim().length < 100) {
+      toast({ variant: "warning", title: "Job Description Too Short", description: "Job description must be at least 100 characters." });
       return;
     }
 
     setAnalyzing(true);
     setReport(null);
+    setValidationError(null);
+    setErrorMessage("");
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await aiApi.atsAnalyze(selectedResumeId, jobDescription);
       
-      // Extract target words from JD
-      const jdWords = jobDescription.toLowerCase();
-      const possibleKeywords = [
-        "React", "Node.js", "TypeScript", "CI/CD", "AWS", "Docker", "GraphQL", 
-        "PostgreSQL", "Agile", "Scrum", "Redux", "REST APIs", "Unit Testing", "Webpack"
-      ];
-
-      // Simulate match checks
-      const matched = [];
-      const missing = [];
-      possibleKeywords.forEach(kw => {
-        if (jdWords.includes(kw.toLowerCase())) {
-          // 65% chance matched in mockup
-          if (Math.random() > 0.4) {
-            matched.push(kw);
-          } else {
-            missing.push(kw);
-          }
+      if (response.success && response.data) {
+        const result = response.data;
+        if (result.status === 'incomplete_resume' || result.status === 'invalid_job_description') {
+          setValidationError(result.status);
+          setErrorMessage(result.message);
+          toast({ 
+            variant: "warning", 
+            title: result.status === 'incomplete_resume' ? "Incomplete Resume" : "Invalid Job Description", 
+            description: result.message 
+          });
+        } else {
+          setReport(result);
+          toast({
+            variant: "success",
+            title: "Scan Completed",
+            description: `ATS Match Score: ${result.overallScore}%`
+          });
         }
-      });
-
-      // Ensure at least some keywords populate
-      if (matched.length === 0 && missing.length === 0) {
-        matched.push("React", "Git");
-        missing.push("TypeScript", "CI/CD", "AWS");
+      } else {
+        toast({
+          variant: "danger",
+          title: "Scan Failed",
+          description: response.message || "Could not complete the ATS comparison."
+        });
       }
-
-      const score = Math.round(50 + (matched.length / (matched.length + missing.length)) * 45);
-
-      const mockReport = {
-        score,
-        matchedKeywords: matched,
-        missingKeywords: missing,
-        warnings: [
-          score < 70 ? "Critical keyword mismatch: essential skills from description are missing." : "Strong keyword alignment with target description.",
-          "Formatting verification: Layout headers are standard and easily parsable.",
-          "Achievement verbs: Bullets use action verbs, but could integrate more metrics/numbers."
-        ],
-        suggestions: [
-          { type: "keyword", text: `Integrate "${missing.slice(0, 3).join(', ')}" in your Work Experience section.` },
-          { type: "format", text: "Ensure date strings are in standard format (e.g. June 2023 - Present)." },
-          { type: "structure", text: "Quantify achievements by adding percentages, dollar metrics, or hours saved." }
-        ]
-      };
-
-      setReport(mockReport);
-
-      // Save updated score to resume in database
-      try {
-        const targetResume = resumes.find(r => r.id === selectedResumeId);
-        if (targetResume) {
-          const payload = { ...targetResume };
-          delete payload._id;
-          delete payload.user;
-          delete payload.createdAt;
-          delete payload.updatedAt;
-          delete payload.id;
-          
-          payload.atsScore = score;
-          
-          await resumeApi.update(selectedResumeId, payload);
-        }
-      } catch (err) {
-        console.error("Failed to save ATS score:", err);
-      }
-
-      toast({
-        variant: "success",
-        title: "Scan Completed",
-        description: `ATS Match Score: ${score}%`
-      });
     } catch (err) {
-      // ignore
+      console.error("ATS scan error:", err);
+      toast({
+        variant: "danger",
+        title: "Scan Failed",
+        description: err.response?.data?.message || "Could not connect to the analysis service."
+      });
     } finally {
       setAnalyzing(false);
     }
   };
 
+  const isButtonDisabled = !selectedResumeId || jobDescription.trim().length < 100;
+
   return (
     <div className="space-y-8 text-left">
       <div>
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-          ATS keyword & Scanner Analyzer
+          ATS Keyword & Scanner Analyzer
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Scan your experience listings against targeted job descriptions to identify keywords and formatting gaps.
@@ -158,7 +140,7 @@ export default function ATSAnalyzerPage() {
               <Select
                 label="Select Resume"
                 value={selectedResumeId}
-                onChange={(e) => setSelectedResumeId(e.target.value)}
+                onChange={handleResumeChange}
                 placeholder="Choose a profile..."
               >
                 {resumes.map(r => (
@@ -166,17 +148,23 @@ export default function ATSAnalyzerPage() {
                 ))}
               </Select>
 
-              <Textarea
-                label="Target Job Description"
-                placeholder="Paste the full job responsibilities, skills, and qualifications from the hiring listing..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                rows={9}
-              />
+              <div className="space-y-1">
+                <Textarea
+                  label="Target Job Description"
+                  placeholder="Paste the full job responsibilities, skills, and qualifications from the hiring listing (minimum 100 characters)..."
+                  value={jobDescription}
+                  onChange={handleJobDescriptionChange}
+                  rows={9}
+                />
+                <p className="text-[10px] text-slate-400 text-right font-medium">
+                  {jobDescription.trim().length} / 100 characters minimum
+                </p>
+              </div>
 
               <Button
                 onClick={handleRunAnalysis}
                 loading={analyzing}
+                disabled={isButtonDisabled}
                 icon={RefreshCw}
                 className="w-full shadow-md shadow-violet-500/10"
               >
@@ -188,7 +176,26 @@ export default function ATSAnalyzerPage() {
 
         {/* Right Column: Scan Report Dashboard */}
         <div className="lg:col-span-7">
-          {report ? (
+          {validationError ? (
+            <Card className="border-amber-200 dark:border-amber-800/60 bg-amber-500/5 p-8 text-center rounded-2xl animate-fade-in text-left">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950/30 text-amber-550 mb-4">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2 text-center">
+                {validationError === 'incomplete_resume' ? "Incomplete Resume Profile" : "Invalid Job Description"}
+              </h3>
+              <p className="text-sm text-slate-650 dark:text-slate-400 max-w-md mx-auto leading-relaxed text-center">
+                {errorMessage || "Please review your inputs and try again."}
+              </p>
+              {validationError === 'incomplete_resume' && (
+                <div className="mt-6 flex justify-center">
+                  <Link to={`/builder/${selectedResumeId}`}>
+                    <Button size="sm" icon={ArrowRight} iconPosition="right">Go to Resume Builder</Button>
+                  </Link>
+                </div>
+              )}
+            </Card>
+          ) : report ? (
             <div className="space-y-6 animate-fade-in">
               <Card className="glass-premium">
                 <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -197,9 +204,9 @@ export default function ATSAnalyzerPage() {
                       ATS compatibility score
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal max-w-sm">
-                      {report.score >= 80 
+                      {report.overallScore >= 80 
                         ? "Excellent match! Your resume contains the core keywords and formatting to clear automated screening phases." 
-                        : report.score >= 60 
+                        : report.overallScore >= 60 
                           ? "Fair alignment. We recommend adding a few missing keywords to raise your compatibility metrics."
                           : "High risk of automated rejection. Key qualifications from the job posting are missing from your resume."
                       }
@@ -207,7 +214,7 @@ export default function ATSAnalyzerPage() {
                   </div>
                   
                   <div className="shrink-0">
-                    <CircularProgress value={report.score} size={120} strokeWidth={10} />
+                    <CircularProgress value={report.overallScore} size={120} strokeWidth={10} />
                   </div>
                 </CardContent>
               </Card>
@@ -219,16 +226,20 @@ export default function ATSAnalyzerPage() {
                   <CardHeader className="pb-3.5 border-b border-slate-100 dark:border-slate-800/40">
                     <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                       <CheckCircle className="h-4 w-4" />
-                      Matched Keywords ({report.matchedKeywords.length})
+                      Matched Keywords ({report.matchedKeywords?.length || 0})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4">
                     <div className="flex flex-wrap gap-1.5">
-                      {report.matchedKeywords.map(kw => (
-                        <Badge key={kw} variant="success" className="text-[10px] uppercase font-bold py-1">
-                          {kw}
-                        </Badge>
-                      ))}
+                      {report.matchedKeywords && report.matchedKeywords.length > 0 ? (
+                        report.matchedKeywords.map(kw => (
+                          <Badge key={kw} variant="success" className="text-[10px] uppercase font-bold py-1">
+                            {kw}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400">None detected</span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -238,37 +249,97 @@ export default function ATSAnalyzerPage() {
                   <CardHeader className="pb-3.5 border-b border-slate-100 dark:border-slate-800/40">
                     <CardTitle className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1.5">
                       <XCircle className="h-4 w-4" />
-                      Missing Keywords ({report.missingKeywords.length})
+                      Missing Keywords ({report.missingKeywords?.length || 0})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4">
                     <div className="flex flex-wrap gap-1.5">
-                      {report.missingKeywords.map(kw => (
-                        <Badge key={kw} variant="danger" className="text-[10px] uppercase font-bold py-1">
-                          {kw}
-                        </Badge>
-                      ))}
+                      {report.missingKeywords && report.missingKeywords.length > 0 ? (
+                        report.missingKeywords.map(kw => (
+                          <Badge key={kw} variant="danger" className="text-[10px] uppercase font-bold py-1">
+                            {kw}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400">None detected</span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Formatting details list */}
+              {/* Skills matching grids */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Matched Skills */}
+                <Card className="border-slate-200 dark:border-slate-800">
+                  <CardHeader className="pb-3.5 border-b border-slate-100 dark:border-slate-800/40">
+                    <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      <CheckCircle className="h-4 w-4" />
+                      Matched Skills ({report.matchedSkills?.length || 0})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {report.matchedSkills && report.matchedSkills.length > 0 ? (
+                        report.matchedSkills.map(sk => (
+                          <Badge key={sk} variant="outline" className="text-[10px] uppercase font-bold py-1 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">
+                            {sk}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400">None detected</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Missing Skills */}
+                <Card className="border-slate-200 dark:border-slate-800">
+                  <CardHeader className="pb-3.5 border-b border-slate-100 dark:border-slate-800/40">
+                    <CardTitle className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                      <XCircle className="h-4 w-4" />
+                      Missing Skills ({report.missingSkills?.length || 0})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {report.missingSkills && report.missingSkills.length > 0 ? (
+                        report.missingSkills.map(sk => (
+                          <Badge key={sk} variant="outline" className="text-[10px] uppercase font-bold py-1 border-red-500/20 text-red-650 dark:text-red-400 bg-red-500/5">
+                            {sk}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400">None detected</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Health Diagnostics list */}
               <Card className="border-slate-200 dark:border-slate-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Health Diagnostics Check</CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 space-y-3">
-                  {report.warnings.map((warn, i) => (
-                    <div key={i} className="flex items-start gap-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                      {report.score < 70 && i === 0 ? (
-                        <AlertTriangle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
-                      )}
-                      <span>{warn}</span>
-                    </div>
-                  ))}
+                  {report.diagnostics && report.diagnostics.length > 0 ? (
+                    report.diagnostics.map((diag, i) => {
+                      const isSuccess = diag.startsWith('✓');
+                      return (
+                        <div key={i} className="flex items-start gap-3 text-xs leading-relaxed text-slate-650 dark:text-slate-350">
+                          {isSuccess ? (
+                            <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
+                          ) : (
+                            <XCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
+                          )}
+                          <span>{diag.replace(/^[✓✗]\s*/, '')}</span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <span className="text-xs text-slate-400">None generated</span>
+                  )}
                 </CardContent>
               </Card>
 
@@ -278,14 +349,18 @@ export default function ATSAnalyzerPage() {
                   <CardTitle className="text-sm">Actionable Improvements</CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 space-y-3">
-                  {report.suggestions.map((sug, i) => (
-                    <div key={i} className="flex items-start gap-3 text-xs leading-relaxed text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/30 p-3 rounded-xl">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 font-bold text-[10px]">
-                        {i + 1}
+                  {report.recommendations && report.recommendations.length > 0 ? (
+                    report.recommendations.map((rec, i) => (
+                      <div key={i} className="flex items-start gap-3 text-xs leading-relaxed text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/30 p-3 rounded-xl">
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 font-bold text-[10px]">
+                          {i + 1}
+                        </div>
+                        <span>{rec}</span>
                       </div>
-                      <span>{sug.text}</span>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400">No suggestions available</span>
+                  )}
                 </CardContent>
               </Card>
 

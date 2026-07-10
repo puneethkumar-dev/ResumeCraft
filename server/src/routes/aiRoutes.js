@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateAIResume } = require('../controllers/aiController');
+const { generateAIResume, analyzeAIResume, atsAnalyzeResume } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 const { validate } = require('../validators/resumeValidator');
 const { body } = require('express-validator');
@@ -30,7 +30,25 @@ const generateRules = [
     .withMessage('Invalid resume ID format')
 ];
 
+// Validation rules for ATS analysis
+const atsRules = [
+  body('resumeId')
+    .isMongoId()
+    .withMessage('Invalid resume ID format'),
+  body('jobDescription')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Job description is required')
+];
+
 // POST /api/ai/generate - protected, rate limited, and validated
 router.post('/generate', protect, aiLimiter, generateRules, validate, generateAIResume);
+
+// POST /api/ai/analyze - protected, rate limited, and validated
+router.post('/analyze', protect, aiLimiter, generateRules, validate, analyzeAIResume);
+
+// POST /api/ai/ats-analyze - protected, rate limited, and validated
+router.post('/ats-analyze', protect, aiLimiter, atsRules, validate, atsAnalyzeResume);
 
 module.exports = router;

@@ -47,12 +47,24 @@ class PromptBuilder {
     const expectedFormat = {
       summary: "Improved professional ATS summary string.",
       experience: [
-        "Improved ATS-optimized bullet point or text description for first experience entry using strong action verbs.",
-        "Improved ATS-optimized bullet point or text description for second experience entry."
+        {
+          id: "exp_1",
+          company: "Google",
+          role: "Software Engineer",
+          location: "Mountain View, CA",
+          startDate: "June 2022",
+          endDate: "Present",
+          description: "Improved ATS-optimized bullet points or text description using strong action verbs."
+        }
       ],
       projects: [
-        "Improved ATS-optimized description for first project entry.",
-        "Improved ATS-optimized description for second project entry."
+        {
+          id: "proj_1",
+          title: "E-Commerce System",
+          technologies: ["React", "Node.js"],
+          liveDemo: "https://example.com",
+          description: "Improved ATS-optimized description for the project entry."
+        }
       ],
       metadata: {
         provider: "gemini",

@@ -22,10 +22,12 @@ export default function DashboardPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedResumeId, setSelectedResumeId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const fetchResumes = async () => {
+    setLoading(true);
     try {
       const response = await resumeApi.getAll();
       if (response.success && response.data) {
@@ -42,6 +44,8 @@ export default function DashboardPage() {
         title: "Failed to Fetch Resumes",
         description: err.response?.data?.message || "Could not retrieve your resumes."
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,56 +155,68 @@ export default function DashboardPage() {
       </div>
 
       {/* Dashboard Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="glass">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Resumes</p>
-              <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-2">{resumes.length}</h3>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+      <div className="glass-premium rounded-3xl p-6 md:p-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/50 dark:divide-slate-800/50">
+          
+          {/* Total Resumes */}
+          <div className="flex items-center gap-4 sm:px-4 first:pl-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 text-violet-600 dark:text-violet-400 shadow-xs">
               <FileText className="h-6 w-6" />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass">
-          <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Average ATS Score</p>
-              <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-2">{averageAts}%</h3>
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Resumes</p>
+              <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{resumes.length}</h3>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          </div>
+
+          {/* Average ATS Score */}
+          <div className="flex items-center gap-4 pt-6 sm:pt-0 sm:pl-8 sm:px-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs">
               <TrendingUp className="h-6 w-6" />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass">
-          <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Scans Completed</p>
-              <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Avg ATS Score</p>
+              <div className="flex items-baseline gap-2 mt-1">
+                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">{averageAts}%</h3>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                  averageAts >= 75 ? "bg-emerald-500/10 text-emerald-650" : averageAts >= 50 ? "bg-amber-500/10 text-amber-650" : "bg-red-500/10 text-red-650"
+                }`}>
+                  {averageAts >= 75 ? "Good" : averageAts >= 50 ? "Average" : "Poor"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Scans Completed */}
+          <div className="flex items-center gap-4 pt-6 sm:pt-0 lg:pl-8 lg:px-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-amber-600 dark:text-amber-400 shadow-xs">
+              <CheckSquare className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Scans Run</p>
+              <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
                 {resumes.filter(r => r.atsScore > 0).length}
               </h3>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <CheckSquare className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="glass">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Premium Access</p>
-              <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white mt-2">Active Free</h3>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+          {/* Premium Status */}
+          <div className="flex items-center gap-4 pt-6 sm:pt-0 lg:pl-8 lg:px-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/10 text-sky-600 dark:text-sky-400 shadow-xs">
               <Sparkles className="h-6 w-6" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Plan Status</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">Free Account</h3>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/30">
+                  Upgrade
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       {/* Main Sections Splits */}
@@ -226,7 +242,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {filteredResumes.length === 0 ? (
+          {loading ? (
+            <div className="flex h-40 w-full items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Loading your workspace...</p>
+              </div>
+            </div>
+          ) : filteredResumes.length === 0 ? (
             <Card className="p-12 text-center border-dashed">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 mb-4">
                 <FileText className="h-6 w-6" />
@@ -240,7 +263,11 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-4">
               {filteredResumes.map((resume) => (
-                <Card key={resume.id} className="hover:shadow-xs border-slate-200 hover:border-slate-300 dark:border-slate-800/80 dark:hover:border-slate-700/80 transition-all duration-200">
+                <Card 
+                  key={resume.id} 
+                  onClick={() => navigate(`/preview/${resume.id}`)}
+                  className="cursor-pointer hover:shadow-md border-slate-200 hover:border-slate-300 dark:border-slate-800/80 dark:hover:border-slate-700/80 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-all duration-200"
+                >
                   <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -264,9 +291,9 @@ export default function DashboardPage() {
                         <Progress value={resume.completion} size="sm" />
                       </div>
                     </div>
-
+ 
                     {/* Actions Split */}
-                    <div className="flex items-center gap-2 sm:self-center shrink-0">
+                    <div className="flex items-center gap-2 sm:self-center shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Link to={`/builder/${resume.id}`}>
                         <Button variant="outline" size="sm" icon={Edit} title="Edit resume" />
                       </Link>
@@ -277,7 +304,10 @@ export default function DashboardPage() {
                         variant="outline"
                         size="sm"
                         icon={Trash2}
-                        onClick={() => confirmDelete(resume.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmDelete(resume.id);
+                        }}
                         className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 border-transparent hover:border-red-200"
                         title="Delete resume"
                       />
@@ -291,27 +321,6 @@ export default function DashboardPage() {
 
         {/* Side Panel: ATS insights + activity */}
         <div className="space-y-6">
-          <Card className="glass">
-            <CardHeader className="pb-3">
-              <CardTitle>ATS Diagnostics</CardTitle>
-              <CardDescription>Average ATS ranking computed across all resume profiles.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center py-4">
-              <CircularProgress value={averageAts} size={130} strokeWidth={11} />
-              
-              <div className="mt-6 text-center space-y-2">
-                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  {averageAts >= 75 ? "Excellent Rating" : averageAts >= 50 ? "Average Rating" : "Action Required"}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs leading-normal">
-                  {averageAts >= 75 
-                    ? "Your resumes are highly structured and formatted to pass major enterprise screening software."
-                    : "Add target keywords from job listings inside the ATS Analyzer to raise your score."
-                  }
-                </p>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Quick Shortcuts */}
           <Card className="glass">
