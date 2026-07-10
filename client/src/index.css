@@ -104,3 +104,41 @@ h1, h2, h3, h4, h5, h6 {
     linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 }
+
+:root {
+  --skeleton-bg: #ffffff;
+  --skeleton-border: rgba(0, 0, 0, 0);
+  --skeleton-shadow: 0 4px 24px rgba(124,58,237,0.06), 0 1px 8px rgba(0,0,0,0.03);
+  --skeleton-bar-accent: #ede9fe;
+  --skeleton-bar-muted: #f8fafc;
+  --skeleton-bar-dark: #e2e8f0;
+  --skeleton-inner-border: #f1f5f9;
+  --skeleton-header-bg: linear-gradient(135deg, #faf5ff 0%, #f0f9ff 100%);
+  --skeleton-photo-bg: linear-gradient(135deg, #ddd6fe, #bae6fd);
+  --skeleton-stamp-bg: #f0fdf4;
+  --skeleton-stamp-border: 1.5px solid #86efac;
+  --page-blend-bg: #f8fafc;
+}
+
+.dark {
+  --skeleton-bg: #18181b;
+  --skeleton-border: rgba(255, 255, 255, 0.06);
+  --skeleton-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --skeleton-bar-accent: rgba(139, 92, 246, 0.15);
+  --skeleton-bar-muted: rgba(255, 255, 255, 0.03);
+  --skeleton-bar-dark: rgba(255, 255, 255, 0.08);
+  --skeleton-inner-border: rgba(255, 255, 255, 0.05);
+  --skeleton-header-bg: linear-gradient(135deg, rgba(24, 24, 27, 0.9) 0%, rgba(9, 9, 11, 0.9) 100%);
+  --skeleton-photo-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(14, 165, 233, 0.3));
+  --skeleton-stamp-bg: rgba(134, 239, 172, 0.05);
+  --skeleton-stamp-border: 1.5px solid rgba(134, 239, 172, 0.25);
+  --skeleton-top-bar-color-2: rgba(14, 165, 233, 0.35);
+  --page-blend-bg: #09090b;
+}
+
+/* Hide Microsoft Edge / IE default password reveal eye icon to prevent duplicate eye render */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
