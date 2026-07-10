@@ -10,79 +10,98 @@ import { Sparkles, Cpu, FileText, Zap, Download, ShieldCheck, Trophy } from "luc
 function ResumeSkeleton({ width = 400, accent = "#c4b5fd" }) {
   const h = Math.round(width * 1.414);
 
-  const Bar = ({ w = "100%", h = 6, color = "#ede9fe" }) => (
-    <div style={{ height: h, width: w, background: color, borderRadius: 4 }} />
+  const Bar = ({ w = "100%", h = 6, color = "var(--skeleton-bar-accent)" }) => (
+    <div style={{ height: h, width: w, background: color, borderRadius: 4 }} className="transition-all duration-300" />
   );
 
   const SecTitle = () => (
     <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 0 10px" }}>
       <div style={{ width: 12, height: 3, background: accent, borderRadius: 2 }} />
       <div style={{ height: 5, width: "22%", background: accent, opacity: 0.6, borderRadius: 3 }} />
-      <div style={{ flex: 1, height: 1, background: "#f1f5f9" }} />
+      <div style={{ flex: 1, height: 1, background: "var(--skeleton-inner-border)" }} className="transition-all duration-300" />
     </div>
   );
 
   const Block = ({ bAccent }) => (
     <div style={{ paddingLeft: 10, borderLeft: `2.5px solid ${bAccent || accent}`, marginBottom: 10 }}>
-      <Bar w="55%" h={6} color="#e2e8f0" />
+      <Bar w="55%" h={6} color="var(--skeleton-bar-dark)" />
       <div style={{ height: 4 }} />
-      <Bar w="38%" h={5} color="#ede9fe" />
+      <Bar w="38%" h={5} color="var(--skeleton-bar-accent)" />
       <div style={{ height: 6 }} />
-      <Bar w="90%" h={4} color="#f8fafc" />
+      <Bar w="90%" h={4} color="var(--skeleton-bar-muted)" />
       <div style={{ height: 4 }} />
-      <Bar w="76%" h={4} color="#f8fafc" />
+      <Bar w="76%" h={4} color="var(--skeleton-bar-muted)" />
     </div>
   );
 
   return (
-    <div style={{
-      width,
-      height: h,
-      background: "#ffffff",
-      borderRadius: 12,
-      overflow: "hidden",
-      boxShadow: "0 4px 24px rgba(124,58,237,0.06), 0 1px 8px rgba(0,0,0,0.03)",
-      flexShrink: 0,
-    }}>
+    <div 
+      style={{
+        width,
+        height: h,
+        background: "var(--skeleton-bg)",
+        borderRadius: 12,
+        overflow: "hidden",
+        boxShadow: "var(--skeleton-shadow)",
+        border: "1px solid var(--skeleton-border)",
+        flexShrink: 0,
+      }}
+      className="transition-all duration-300"
+    >
       {/* Top bar */}
-      <div style={{ height: 5, background: `linear-gradient(90deg, ${accent}, #bae6fd)` }} />
+      <div style={{ height: 5, background: `linear-gradient(90deg, ${accent}, var(--skeleton-top-bar-color-2, #bae6fd))` }} className="transition-all duration-300" />
 
       {/* Header */}
-      <div style={{
-        padding: `${width * 0.07}px ${width * 0.08}px ${width * 0.05}px`,
-        background: "linear-gradient(135deg, #faf5ff 0%, #f0f9ff 100%)",
-        borderBottom: "1px solid #f1f5f9",
-      }}>
+      <div 
+        style={{
+          padding: `${width * 0.07}px ${width * 0.08}px ${width * 0.05}px`,
+          background: "var(--skeleton-header-bg)",
+          borderBottom: "1px solid var(--skeleton-inner-border)",
+        }}
+        className="transition-all duration-300"
+      >
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <div style={{
-            width: width * 0.13, height: width * 0.13, borderRadius: "50%",
-            background: `linear-gradient(135deg, #ddd6fe, #bae6fd)`, flexShrink: 0,
-          }} />
+          <div 
+            style={{
+              width: width * 0.13, height: width * 0.13, borderRadius: "50%",
+              background: `var(--skeleton-photo-bg)`, flexShrink: 0,
+            }}
+            className="transition-all duration-300"
+          />
           <div style={{ flex: 1 }}>
-            <Bar w="52%" h={Math.round(width * 0.035)} color="#e2e8f0" />
+            <Bar w="52%" h={Math.round(width * 0.035)} color="var(--skeleton-bar-dark)" />
             <div style={{ height: 6 }} />
-            <Bar w="36%" h={Math.round(width * 0.025)} color="#ddd6fe" />
+            <Bar w="36%" h={Math.round(width * 0.025)} color="var(--skeleton-bar-accent)" />
             <div style={{ height: 8 }} />
             <div style={{ display: "flex", gap: 5 }}>
               {[30, 26, 32].map((bw, i) => (
-                <div key={i} style={{
-                  height: Math.round(width * 0.022),
-                  width: `${bw}%`,
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 100,
-                }} />
+                <div 
+                  key={i} 
+                  style={{
+                    height: Math.round(width * 0.022),
+                    width: `${bw}%`,
+                    background: "var(--skeleton-bar-muted)",
+                    border: "1px solid var(--skeleton-inner-border)",
+                    borderRadius: 100,
+                  }}
+                  className="transition-all duration-300"
+                />
               ))}
             </div>
           </div>
-          <div style={{
-            width: width * 0.17, height: width * 0.17,
-            background: "#f0fdf4", border: "1.5px solid #86efac", borderRadius: 10, flexShrink: 0,
-          }} />
+          <div 
+            style={{
+              width: width * 0.17, height: width * 0.17,
+              background: "var(--skeleton-stamp-bg)", 
+              border: "var(--skeleton-stamp-border)", 
+              borderRadius: 10, flexShrink: 0,
+            }}
+            className="transition-all duration-300"
+          />
         </div>
         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 5 }}>
-          <Bar w="100%" h={5} color="#e2e8f0" />
-          <Bar w="80%" h={5} color="#f1f5f9" />
+          <Bar w="100%" h={5} color="var(--skeleton-bar-dark)" />
+          <Bar w="80%" h={5} color="var(--skeleton-inner-border)" />
         </div>
       </div>
 
@@ -92,31 +111,34 @@ function ResumeSkeleton({ width = 400, accent = "#c4b5fd" }) {
         <div style={{ flex: 2, paddingRight: width * 0.05 }}>
           <SecTitle />
           <Block />
-          <Block bAccent="#bae6fd" />
+          <Block bAccent="var(--skeleton-top-bar-color-2, #bae6fd)" />
           <SecTitle />
-          <Block bAccent="#a5b4fc" />
+          <Block bAccent="var(--skeleton-bar-accent)" />
           <Block />
         </div>
         {/* Side col */}
-        <div style={{ flex: 1, paddingLeft: width * 0.04, borderLeft: "1px solid #f1f5f9" }}>
+        <div 
+          style={{ flex: 1, paddingLeft: width * 0.04, borderLeft: "1px solid var(--skeleton-inner-border)" }}
+          className="transition-all duration-300"
+        >
           <SecTitle />
           {[92, 84, 76, 90, 68].map((pct, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                <Bar w="50%" h={4} color="#e2e8f0" />
-                <Bar w="16%" h={4} color="#ddd6fe" />
+                <Bar w="50%" h={4} color="var(--skeleton-bar-dark)" />
+                <Bar w="16%" h={4} color="var(--skeleton-bar-accent)" />
               </div>
-              <div style={{ height: 4, background: "#f8fafc", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ height: 4, background: "var(--skeleton-bar-muted)", borderRadius: 99, overflow: "hidden" }} className="transition-all duration-300">
                 <div style={{
                   height: "100%", width: `${pct}%`,
-                  background: `linear-gradient(90deg, ${accent}, #bae6fd)`,
+                  background: `linear-gradient(90deg, ${accent}, var(--skeleton-top-bar-color-2, #bae6fd))`,
                   borderRadius: 99,
                 }} />
               </div>
             </div>
           ))}
           <SecTitle />
-          <Block bAccent="#bae6fd" />
+          <Block bAccent="var(--skeleton-top-bar-color-2, #bae6fd)" />
           <Block />
         </div>
       </div>
