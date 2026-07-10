@@ -1,5 +1,6 @@
 import { Outlet, Navigate, Link } from "react-router-dom";
 import { Sparkles, FileText, CheckCircle2 } from "lucide-react";
+import RobotIllustration from "../components/RobotIllustration";
 
 export default function AuthLayout() {
   // Simple check for auth (if already logged in, redirect to dashboard)
@@ -9,7 +10,7 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen w-full bg-white dark:bg-slate-950">
       {/* Form Section */}
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
@@ -28,46 +29,62 @@ export default function AuthLayout() {
         </div>
       </div>
 
-      {/* Visual Marketing Panel */}
-      <div className="relative hidden flex-1 items-center justify-center lg:flex bg-slate-900 overflow-hidden">
-        {/* Background Gradients */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-violet-600/20 blur-[120px]"></div>
-        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-indigo-600/20 blur-[120px]"></div>
+      {/* Visual Marketing Panel — light theme matching landing page */}
+      <div className="relative hidden flex-1 items-center justify-center lg:flex overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #faf5ff 0%, #f0f9ff 50%, #fafafe 100%)" }}
+      >
+        {/* Soft pastel ambient glows (matching landing page) */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 30% 50%, rgba(196,181,253,0.18) 0%, transparent 70%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 80% 30%, rgba(186,230,253,0.15) 0%, transparent 70%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 40% at 60% 85%, rgba(167,139,250,0.10) 0%, transparent 70%)" }} />
 
         <div className="relative z-10 w-full max-w-md px-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold text-violet-300 backdrop-blur-sm mb-6 animate-pulse-slow">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/50 bg-white/70 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold text-violet-600 mb-6 shadow-sm shadow-violet-100">
             <Sparkles className="h-3.5 w-3.5" />
             <span>AI-Powered Career Accelerator</span>
           </div>
 
-          <h2 className="font-display text-4xl font-extrabold tracking-tight text-white leading-tight mb-4">
-            Build a resume that lands <span className="bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">3x more interviews</span>
+          {/* Headline */}
+          <h2 className="font-display text-4xl font-extrabold tracking-tight leading-tight mb-4" style={{ color: "#1e293b" }}>
+            Build a resume that lands{" "}
+            <span style={{ background: "linear-gradient(135deg, #7c3aed, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              3x more interviews
+            </span>
           </h2>
-          <p className="text-base text-slate-400 mb-10 leading-relaxed">
+
+          <p className="text-base mb-10 leading-relaxed" style={{ color: "#64748b" }}>
             Our AI-guided system optimizes your resume structure, refines bullet points, and checks ATS keywords instantly.
           </p>
 
-          {/* Social Proof/Features List */}
-          <div className="space-y-4 text-left glass-premium p-6 rounded-2xl border-white/5 dark:border-white/5 bg-slate-950/40">
-            <div className="flex items-start gap-3">
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400 mt-0.5">
-                <CheckCircle2 className="h-3.5 w-3.5" />
+          {/* Robot illustration — unchanged */}
+          <RobotIllustration />
+
+          {/* Feature list — light card matching landing page */}
+          <div
+            className="space-y-4 text-left p-6 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.75)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(124,58,237,0.10)",
+              boxShadow: "0 8px 32px rgba(124,58,237,0.07)",
+            }}
+          >
+            {[
+              "ATS Optimization Engine detects missing keywords",
+              "AI Bullet Point generator customizes for specific job roles",
+              "Beautiful, recruiter-vetted design templates",
+            ].map((feat) => (
+              <div key={feat} className="flex items-start gap-3">
+                <div
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full mt-0.5"
+                  style={{ background: "linear-gradient(135deg, #ede9fe, #dbeafe)" }}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" style={{ color: "#7c3aed" }} />
+                </div>
+                <p className="text-sm font-medium" style={{ color: "#334155" }}>{feat}</p>
               </div>
-              <p className="text-sm font-medium text-slate-300">ATS Optimization Engine detects missing keywords</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400 mt-0.5">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              </div>
-              <p className="text-sm font-medium text-slate-300">AI Bullet Point generator customizes for specific job roles</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400 mt-0.5">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              </div>
-              <p className="text-sm font-medium text-slate-300">Beautiful, recruiter-vetted design templates</p>
-            </div>
+            ))}
           </div>
         </div>
       </div>
