@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, FileText, ChevronRight, CheckCircle2, Star, 
@@ -9,6 +9,7 @@ import {
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import LandingBackground from "../components/LandingBackground";
 
 const features = [
   {
@@ -72,13 +73,23 @@ const faqs = [
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
+  const [promptText, setPromptText] = useState("");
+  const navigate = useNavigate();
+
+  const handlePromptSubmit = (e) => {
+    e.preventDefault();
+    if (!promptText.trim()) return;
+    localStorage.setItem("initial_ai_prompt", promptText.trim());
+    navigate("/register");
+  };
 
   const toggleFaq = (index) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 scroll-smooth overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 scroll-smooth overflow-x-hidden relative">
+      <LandingBackground />
       
       {/* Header/Navbar */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/40">
@@ -148,58 +159,88 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-24 md:pt-32 md:pb-36 bg-grid-pattern overflow-hidden">
+      <section className="relative pt-20 pb-24 md:pt-28 md:pb-32 bg-grid-pattern overflow-hidden bg-transparent">
         {/* Colorful Gradient Blobs */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[450px] rounded-full bg-violet-600/10 dark:bg-violet-600/5 blur-[120px] pointer-events-none"></div>
         <div className="absolute top-10 right-20 h-[300px] w-[300px] rounded-full bg-indigo-600/10 dark:bg-indigo-600/5 blur-[100px] pointer-events-none"></div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Badge variant="primary" className="mb-6 animate-pulse-slow">
-              <Sparkles className="h-3.5 w-3.5 mr-1" />
-              Build the Perfect Resume
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center text-center">
+          <div className="max-w-3xl flex flex-col items-center text-center space-y-6">
+            <Badge variant="secondary" className="bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-850/40 py-1 px-3 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 animate-pulse-slow">
+              <Sparkles className="h-3.5 w-3.5" />
+              Professional Resume Builder
             </Badge>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] max-w-3xl mx-auto mb-6">
-              Create a recruiter-ready resume in minutes with <span className="bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300 bg-clip-text text-transparent">AI Guidance</span>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] w-full">
+              Craft <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 bg-clip-text text-transparent">Professional</span> Resumes
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-              ResumeCraft analyzes your experience, matches job target keywords, and formats templates perfectly to clear applicant tracking systems and land interviews.
+            <p className="text-base sm:text-lg text-slate-550 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
+              Create job-winning resumes with expertly designed templates, ATS-friendly, recruiter-approved, and tailored to your career goals.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/register">
-                <Button size="lg" icon={ArrowRight} iconPosition="right" className="w-full sm:w-auto">
-                  Create Resume Now
-                </Button>
-              </Link>
-              <a href="#how-it-works">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Learn How it Works
-                </Button>
-              </a>
+            {/* Middle Prompt Input Box */}
+            <div className="w-full max-w-xl mx-auto">
+              <form onSubmit={handlePromptSubmit} className="relative flex items-center p-1.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent transition-all duration-200 shadow-xs">
+                <div className="flex items-center pl-3.5 pr-2 pointer-events-none text-slate-400 dark:text-slate-500">
+                  <Sparkles className="h-4.5 w-4.5" />
+                </div>
+                <input
+                  type="text"
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
+                  placeholder="e.g., Senior React Developer with 5 years experience..."
+                  className="w-full bg-transparent py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 active:scale-98 text-white text-sm font-semibold transition-all shadow-md shadow-violet-500/20 cursor-pointer shrink-0"
+                >
+                  <span>Generate</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
             </div>
 
-            {/* Social Proof */}
-            <div className="mt-14 flex flex-col items-center gap-4">
-              <div className="flex items-center gap-1 text-amber-500">
-                {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}
-              </div>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                Trusted by 10,000+ applicants to get hired at leading tech organizations.
-              </p>
+            {/* Sub-CTA buttons */}
+            <div className="flex flex-wrap gap-4 items-center justify-center pt-2">
+              <Link to="/register">
+                <Button size="lg" className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white font-semibold flex items-center gap-2 cursor-pointer shadow-md shadow-slate-950/10 dark:shadow-white/5">
+                  Start Building
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/templates">
+                <Button variant="outline" size="lg" className="border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-355 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+                  View Templates
+                </Button>
+              </Link>
             </div>
-          </motion.div>
+
+            {/* Stats Counters */}
+            <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-200/60 dark:border-slate-800/40 w-full max-w-md mx-auto">
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-display">50K+</div>
+                <div className="text-[11px] text-slate-450 dark:text-slate-500 font-semibold tracking-wide uppercase mt-1">Resumes Created</div>
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-display flex items-center gap-1 justify-center">
+                  4.9
+                  <Star className="h-4.5 w-4.5 fill-amber-400 stroke-amber-400 mb-0.5" />
+                </div>
+                <div className="text-[11px] text-slate-450 dark:text-slate-500 font-semibold tracking-wide uppercase mt-1">User Rating</div>
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-display">5 Min</div>
+                <div className="text-[11px] text-slate-450 dark:text-slate-500 font-semibold tracking-wide uppercase mt-1">Build Time</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="py-20 md:py-28 bg-white dark:bg-slate-900/40 relative border-t border-b border-slate-200/50 dark:border-slate-800/40">
+      <section id="features" className="py-20 md:py-28 bg-transparent relative border-t border-b border-slate-200/50 dark:border-slate-800/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
@@ -230,7 +271,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="py-20 md:py-28 bg-slate-50 dark:bg-slate-950">
+      <section id="how-it-works" className="py-20 md:py-28 bg-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
@@ -256,7 +297,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Accordion Section */}
-      <section id="faq" className="py-20 md:py-28 bg-white dark:bg-slate-900/40 border-t border-slate-200/50 dark:border-slate-800/40">
+      <section id="faq" className="py-20 md:py-28 bg-transparent border-t border-slate-200/50 dark:border-slate-800/40">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
