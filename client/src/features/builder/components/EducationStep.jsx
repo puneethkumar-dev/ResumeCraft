@@ -97,13 +97,13 @@ export default function EducationStep() {
                         onChange={(e) => handleFieldChange(item.id, "fieldOfStudy", e.target.value)}
                       />
                       <Input
-                        label="Start Date"
+                        label="Start Date (Optional)"
                         placeholder="e.g. Sept 2019"
                         value={item.startDate || ""}
                         onChange={(e) => handleFieldChange(item.id, "startDate", e.target.value)}
                       />
                       <Input
-                        label="End Date (or expected)"
+                        label="End Date (or expected) (Optional)"
                         placeholder="e.g. May 2023"
                         value={item.endDate || ""}
                         onChange={(e) => handleFieldChange(item.id, "endDate", e.target.value)}

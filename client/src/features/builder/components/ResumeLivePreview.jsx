@@ -22,6 +22,12 @@ export default function ResumeLivePreview({ scale = 1, useAI = false }) {
       education: [],
       projects: [],
       showSkills: false,
+      certifications: [],
+      achievements: [],
+      languages: [],
+      interests: [],
+      volunteerExperience: [],
+      publications: [],
       continueExperience: false,
       continueEducation: false,
       continueProjects: false,
@@ -184,6 +190,186 @@ export default function ResumeLivePreview({ scale = 1, useAI = false }) {
       }
     }
 
+    // Certifications
+    if (resumeData.certifications && resumeData.certifications.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = resumeData.certifications.length * 30;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: resumeData.certifications,
+          achievements: [],
+          languages: [],
+          interests: [],
+          volunteerExperience: [],
+          publications: [],
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.certifications = resumeData.certifications;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
+    // Achievements
+    if (resumeData.achievements && resumeData.achievements.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = resumeData.achievements.length * 40;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: [],
+          achievements: resumeData.achievements,
+          languages: [],
+          interests: [],
+          volunteerExperience: [],
+          publications: [],
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.achievements = resumeData.achievements;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
+    // Languages
+    if (resumeData.languages && resumeData.languages.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = 35;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: [],
+          achievements: [],
+          languages: resumeData.languages,
+          interests: [],
+          volunteerExperience: [],
+          publications: [],
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.languages = resumeData.languages;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
+    // Interests
+    if (resumeData.interests && resumeData.interests.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = 35;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: [],
+          achievements: [],
+          languages: [],
+          interests: resumeData.interests,
+          volunteerExperience: [],
+          publications: [],
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.interests = resumeData.interests;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
+    // Volunteer Experience
+    if (resumeData.volunteerExperience && resumeData.volunteerExperience.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = resumeData.volunteerExperience.length * 50;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: [],
+          achievements: [],
+          languages: [],
+          interests: [],
+          volunteerExperience: resumeData.volunteerExperience,
+          publications: [],
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.volunteerExperience = resumeData.volunteerExperience;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
+    // Publications
+    if (resumeData.publications && resumeData.publications.length > 0) {
+      let headingHeight = 40;
+      let itemsHeight = resumeData.publications.length * 50;
+      if (currentHeight + headingHeight + itemsHeight > 960) {
+        pages.push(currentPage);
+        currentPage = {
+          showHeader: false,
+          showSummary: false,
+          experience: [],
+          education: [],
+          projects: [],
+          showSkills: false,
+          certifications: [],
+          achievements: [],
+          languages: [],
+          interests: [],
+          volunteerExperience: [],
+          publications: resumeData.publications,
+          continueExperience: false,
+          continueEducation: false,
+          continueProjects: false,
+        };
+        currentHeight = headingHeight + itemsHeight;
+      } else {
+        currentPage.publications = resumeData.publications;
+        currentHeight += headingHeight + itemsHeight;
+      }
+    }
+
     pages.push(currentPage);
     return pages;
   };
@@ -306,13 +492,110 @@ export default function ResumeLivePreview({ scale = 1, useAI = false }) {
 
         {/* Skills */}
         {pageData.showSkills && skills.length > 0 && (
-          <div className="py-4">
+          <div className="py-4 border-b border-slate-100">
             <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-2.5">Skills</h2>
             <div className="flex flex-wrap gap-1.5">
               {skills.map((skill) => (
                 <span key={skill} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide">
                   {skill}
                 </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications */}
+        {pageData.certifications && pageData.certifications.length > 0 && (
+          <div className="py-4 border-b border-slate-100">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Certifications</h2>
+            <div className="space-y-2">
+              {pageData.certifications.map((cert) => (
+                <div key={cert.id || cert._id} className="text-[10px] leading-relaxed">
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{cert.title}</span>
+                  {cert.issuer && <span className="text-slate-500"> &bull; {cert.issuer}</span>}
+                  {cert.issueDate && <span className="text-slate-400"> ({cert.issueDate}{cert.expiryDate ? ` - ${cert.expiryDate}` : ""})</span>}
+                  {cert.credentialId && <span className="text-slate-400 font-mono text-[9px] block">ID: {cert.credentialId}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Achievements */}
+        {pageData.achievements && pageData.achievements.length > 0 && (
+          <div className="py-4 border-b border-slate-100">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Achievements</h2>
+            <div className="space-y-2">
+              {pageData.achievements.map((ach) => (
+                <div key={ach.id || ach._id} className="text-[10px] leading-relaxed">
+                  <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                    <span>{ach.title}</span>
+                    {ach.date && <span className="text-slate-400 font-normal">{ach.date}</span>}
+                  </div>
+                  {ach.description && <p className="text-slate-650 dark:text-slate-450 mt-0.5">{ach.description}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Languages */}
+        {pageData.languages && pageData.languages.length > 0 && (
+          <div className="py-4 border-b border-slate-100">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-2.5">Languages</h2>
+            <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+              {pageData.languages.map((l) => `${l.name}${l.proficiency ? ` (${l.proficiency})` : ""}`).join(", ")}
+            </p>
+          </div>
+        )}
+
+        {/* Interests */}
+        {pageData.interests && pageData.interests.length > 0 && (
+          <div className="py-4 border-b border-slate-100">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-2.5">Interests</h2>
+            <div className="flex flex-wrap gap-1.5">
+              {pageData.interests.map((interest) => (
+                <span key={interest.id} className="bg-slate-50 dark:bg-slate-800/60 text-slate-650 dark:text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide">
+                  {interest.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Volunteer Experience */}
+        {pageData.volunteerExperience && pageData.volunteerExperience.length > 0 && (
+          <div className="py-4 border-b border-slate-100">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Volunteer Experience</h2>
+            <div className="space-y-3">
+              {pageData.volunteerExperience.map((vol) => (
+                <div key={vol.id || vol._id} className="space-y-1">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white">{vol.role || "Volunteer"}</h3>
+                    <span className="text-[10px] text-slate-400 font-semibold">{vol.startDate} - {vol.endDate}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-semibold">{vol.organization}</div>
+                  {vol.description && <p className="text-[10px] leading-relaxed text-slate-650 dark:text-slate-350">{vol.description}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Publications */}
+        {pageData.publications && pageData.publications.length > 0 && (
+          <div className="py-4">
+            <h2 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest mb-3">Publications</h2>
+            <div className="space-y-2">
+              {pageData.publications.map((pub) => (
+                <div key={pub.id || pub._id} className="text-[10px] leading-relaxed">
+                  <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                    <span>{pub.title}</span>
+                    {pub.date && <span className="text-slate-400 font-normal">{pub.date}</span>}
+                  </div>
+                  <div className="text-slate-500">{pub.publisher} {pub.link && <a href={pub.link} target="_blank" rel="noreferrer" className="text-violet-500 underline ml-1">{pub.link}</a>}</div>
+                  {pub.description && <p className="text-slate-650 dark:text-slate-450 mt-0.5">{pub.description}</p>}
+                </div>
               ))}
             </div>
           </div>
@@ -442,6 +725,99 @@ export default function ResumeLivePreview({ scale = 1, useAI = false }) {
             <p className="text-[9.5px] text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
               {skills.join("  |  ")}
             </p>
+          </div>
+        )}
+
+        {/* Certifications */}
+        {pageData.certifications && pageData.certifications.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Certifications</h2>
+            <div className="space-y-1">
+              {pageData.certifications.map((cert) => (
+                <div key={cert.id || cert._id} className="text-[9.5px]">
+                  <span className="font-bold text-slate-900 dark:text-white">{cert.title}</span>
+                  {cert.issuer && <span className="text-slate-650 dark:text-slate-400"> &bull; {cert.issuer}</span>}
+                  {cert.issueDate && <span className="text-slate-500 font-normal"> ({cert.issueDate}{cert.expiryDate ? ` - ${cert.expiryDate}` : ""})</span>}
+                  {cert.credentialId && <span className="text-slate-505 font-mono text-[8.5px] block pl-2">ID: {cert.credentialId}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Achievements */}
+        {pageData.achievements && pageData.achievements.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Achievements</h2>
+            <div className="space-y-1.5">
+              {pageData.achievements.map((ach) => (
+                <div key={ach.id || ach._id} className="text-[9.5px]">
+                  <div className="flex justify-between font-bold text-slate-900 dark:text-white">
+                    <span>{ach.title}</span>
+                    {ach.date && <span className="text-slate-500 font-normal">{ach.date}</span>}
+                  </div>
+                  {ach.description && <p className="text-slate-700 dark:text-slate-300 pl-2 italic">{ach.description}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Languages */}
+        {pageData.languages && pageData.languages.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-1.5 tracking-wider">Languages</h2>
+            <p className="text-[9.5px] text-slate-700 dark:text-slate-300 font-semibold leading-relaxed">
+              {pageData.languages.map((l) => `${l.name}${l.proficiency ? ` (${l.proficiency})` : ""}`).join("  |  ")}
+            </p>
+          </div>
+        )}
+
+        {/* Interests */}
+        {pageData.interests && pageData.interests.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-1.5 tracking-wider">Interests</h2>
+            <p className="text-[9.5px] text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
+              {pageData.interests.map((interest) => interest.name).join("  |  ")}
+            </p>
+          </div>
+        )}
+
+        {/* Volunteer Experience */}
+        {pageData.volunteerExperience && pageData.volunteerExperience.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Volunteer Experience</h2>
+            <div className="space-y-2">
+              {pageData.volunteerExperience.map((vol) => (
+                <div key={vol.id || vol._id} className="space-y-0.5">
+                  <div className="flex justify-between items-baseline font-bold text-[10px] text-slate-900 dark:text-white">
+                    <span>{vol.organization}</span>
+                    <span className="font-normal text-[9px] text-slate-505">{vol.startDate} - {vol.endDate}</span>
+                  </div>
+                  <div className="text-[9.5px] italic font-semibold text-slate-600 dark:text-slate-400">{vol.role || "Volunteer"}</div>
+                  {vol.description && <p className="text-[9.5px] leading-relaxed text-slate-700 dark:text-slate-300 pl-2">{vol.description}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Publications */}
+        {pageData.publications && pageData.publications.length > 0 && (
+          <div className="py-3 text-left">
+            <h2 className="text-xs font-bold uppercase text-slate-955 dark:text-white border-b border-slate-300 pb-0.5 mb-2 tracking-wider">Publications</h2>
+            <div className="space-y-1.5">
+              {pageData.publications.map((pub) => (
+                <div key={pub.id || pub._id} className="text-[9.5px]">
+                  <div className="flex justify-between font-bold text-slate-900 dark:text-white">
+                    <span>{pub.title}</span>
+                    {pub.date && <span className="text-slate-500 font-normal">{pub.date}</span>}
+                  </div>
+                  <div className="text-slate-600 dark:text-slate-400 italic">{pub.publisher} {pub.link && <a href={pub.link} target="_blank" rel="noreferrer" className="text-violet-500 underline ml-1">{pub.link}</a>}</div>
+                  {pub.description && <p className="text-slate-700 dark:text-slate-300 pl-2">{pub.description}</p>}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

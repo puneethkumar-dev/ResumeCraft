@@ -8,6 +8,7 @@ import ExperienceStep from "../features/builder/components/ExperienceStep";
 import EducationStep from "../features/builder/components/EducationStep";
 import ProjectsStep from "../features/builder/components/ProjectsStep";
 import SkillsStep from "../features/builder/components/SkillsStep";
+import ExtrasStep from "../features/builder/components/ExtrasStep";
 import TemplatesStep from "../features/builder/components/TemplatesStep";
 import ResumeLivePreview from "../features/builder/components/ResumeLivePreview";
 
@@ -16,11 +17,12 @@ import { Card, CardContent } from "../components/ui/card";
 import { 
   ArrowLeft, ArrowRight, Save, RotateCcw, 
   User, Briefcase, GraduationCap, FolderGit, 
-  Hammer, Compass, ZoomIn, ZoomOut, CheckCircle 
+  Hammer, Compass, ZoomIn, ZoomOut, CheckCircle, Award
 } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../contexts/ToastContext";
+import { getResumeDisplayName } from "../utils/resume";
 
 const steps = [
   { label: "Identity", icon: User },
@@ -28,6 +30,7 @@ const steps = [
   { label: "Studies", icon: GraduationCap },
   { label: "Projects", icon: FolderGit },
   { label: "Skills", icon: Hammer },
+  { label: "Extras", icon: Award },
   { label: "Templates", icon: Compass }
 ];
 
@@ -62,12 +65,107 @@ function BuilderContent() {
       case 2: return <EducationStep />;
       case 3: return <ProjectsStep />;
       case 4: return <SkillsStep />;
-      case 5: return <TemplatesStep />;
+      case 5: return <ExtrasStep />;
+      case 6: return <TemplatesStep />;
       default: return <PersonalInfoStep />;
     }
   };
 
+  const validateCurrentStep = () => {
+    if (activeStep === 0) {
+      const info = resumeData.personalInfo || {};
+      if (!info.fullName?.trim()) {
+        toast({ variant: "danger", title: "Validation Error", description: "Full Name is required." });
+        return false;
+      }
+      if (!resumeData.targetRole?.trim()) {
+        toast({ variant: "danger", title: "Validation Error", description: "Target Job Title is required." });
+        return false;
+      }
+      if (!info.email?.trim()) {
+        toast({ variant: "danger", title: "Validation Error", description: "Email is required." });
+        return false;
+      }
+      if (!info.phone?.trim()) {
+        toast({ variant: "danger", title: "Validation Error", description: "Phone Number is required." });
+        return false;
+      }
+    }
+
+    if (activeStep === 2) {
+      const edu = resumeData.education || [];
+      if (edu.length === 0) {
+        toast({ variant: "danger", title: "Validation Error", description: "At least one education entry is required." });
+        return false;
+      }
+      for (let i = 0; i < edu.length; i++) {
+        const item = edu[i];
+        if (!item.school?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `School / University is required for entry #${i + 1}.` });
+          return false;
+        }
+        if (!item.degree?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Degree is required for entry #${i + 1}.` });
+          return false;
+        }
+        if (!item.fieldOfStudy?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Field of Study is required for entry #${i + 1}.` });
+          return false;
+        }
+      }
+    }
+
+    if (activeStep === 4) {
+      const skills = resumeData.skills || [];
+      if (skills.length === 0) {
+        toast({ variant: "danger", title: "Validation Error", description: "At least one skill is required." });
+        return false;
+      }
+    }
+
+    if (activeStep === 5) {
+      const certs = resumeData.certifications || [];
+      for (let i = 0; i < certs.length; i++) {
+        if (!certs[i].title?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Certification Name is required for entry #${i + 1}.` });
+          return false;
+        }
+      }
+      const achs = resumeData.achievements || [];
+      for (let i = 0; i < achs.length; i++) {
+        if (!achs[i].title?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Achievement Title is required for entry #${i + 1}.` });
+          return false;
+        }
+      }
+      const langs = resumeData.languages || [];
+      for (let i = 0; i < langs.length; i++) {
+        if (!langs[i].name?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Language name is required for entry #${i + 1}.` });
+          return false;
+        }
+      }
+      const vols = resumeData.volunteerExperience || [];
+      for (let i = 0; i < vols.length; i++) {
+        if (!vols[i].organization?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Organization name is required for volunteer entry #${i + 1}.` });
+          return false;
+        }
+      }
+      const pubs = resumeData.publications || [];
+      for (let i = 0; i < pubs.length; i++) {
+        if (!pubs[i].title?.trim()) {
+          toast({ variant: "danger", title: "Validation Error", description: `Publication Title is required for entry #${i + 1}.` });
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
   const handleNext = () => {
+    if (!validateCurrentStep()) return;
     if (activeStep < steps.length - 1) {
       setActiveStep(activeStep + 1);
     } else {
@@ -103,8 +201,16 @@ function BuilderContent() {
           <div>
             <input
               type="text"
-              value={resumeData.title}
+              value={
+                resumeData.title === "Untitled Resume" || 
+                resumeData.title === "New Resume" || 
+                resumeData.title === "My New Resume" || 
+                (resumeData.title && resumeData.title.startsWith("My ") && resumeData.title.endsWith(" Draft"))
+                  ? ""
+                  : resumeData.title || ""
+              }
               onChange={(e) => updateGeneralFields({ title: e.target.value })}
+              placeholder={getResumeDisplayName(resumeData)}
               className="font-display text-lg font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-violet-500 outline-hidden py-0.5 px-1 focus:ring-0"
             />
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-450 font-semibold uppercase tracking-wider pl-1 mt-0.5">
@@ -165,9 +271,12 @@ function BuilderContent() {
           const isActive = idx === activeStep;
           const isCompleted = idx < activeStep;
           return (
-            <button
-              key={step.label}
-              onClick={() => setActiveStep(idx)}
+             <button
+               key={step.label}
+               onClick={() => {
+                 if (idx > activeStep && !validateCurrentStep()) return;
+                 setActiveStep(idx);
+               }}
               className={cn(
                 "flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold shrink-0 transition-colors select-none",
                 isActive 

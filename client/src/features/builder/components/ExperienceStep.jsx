@@ -72,7 +72,7 @@ export default function ExperienceStep() {
     <div className="space-y-6 text-left">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white mb-1">Work Experience</h3>
+          <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white mb-1">Work Experience (Optional)</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">Detail your past professional roles and accomplishments.</p>
         </div>
         <Button onClick={handleAdd} size="sm" icon={Plus}>Add Role</Button>
