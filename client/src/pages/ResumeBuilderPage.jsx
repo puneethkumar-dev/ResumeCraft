@@ -38,7 +38,9 @@ function BuilderContent() {
     activeStep, 
     setActiveStep, 
     updateGeneralFields, 
-    resetForm 
+    resetForm,
+    autosaveStatus,
+    flushSave
   } = useResumeForm();
   
   const [zoomScale, setZoomScale] = useState(1);
@@ -90,7 +92,10 @@ function BuilderContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-5 gap-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={async () => {
+              await flushSave();
+              navigate("/dashboard");
+            }}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-55 hover:dark:bg-slate-800/40 text-slate-500"
           >
             <ArrowLeft className="h-4.5 w-4.5" />
@@ -102,9 +107,28 @@ function BuilderContent() {
               onChange={(e) => updateGeneralFields({ title: e.target.value })}
               className="font-display text-lg font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-violet-500 outline-hidden py-0.5 px-1 focus:ring-0"
             />
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider pl-1 mt-0.5">
-              Draft &bull; {resumeData.completion}% Complete
-            </p>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-450 font-semibold uppercase tracking-wider pl-1 mt-0.5">
+              <span>Draft &bull; {resumeData.completion}% Complete</span>
+              <span>&bull;</span>
+              {autosaveStatus === "saving" && (
+                <span className="flex items-center gap-1.5 text-violet-500 font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-ping"></span>
+                  Saving...
+                </span>
+              )}
+              {autosaveStatus === "saved" && (
+                <span className="flex items-center gap-1.5 text-emerald-500 font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  Saved
+                </span>
+              )}
+              {autosaveStatus === "unsaved" && (
+                <span className="flex items-center gap-1.5 text-amber-500 font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                  Unsaved changes
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -123,8 +147,9 @@ function BuilderContent() {
             variant="outline"
             size="sm"
             icon={Save}
-            onClick={() => {
-              toast({ variant: "success", title: "Progress Saved", description: "Your changes have been saved to local storage." });
+            onClick={async () => {
+              await flushSave();
+              toast({ variant: "success", title: "Progress Saved", description: "Your changes have been saved to the database." });
               navigate("/dashboard");
             }}
           >
@@ -221,7 +246,7 @@ function BuilderContent() {
             </div>
           </div>
 
-          <div className="w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-6 flex justify-center max-h-[70vh] overflow-y-auto">
+          <div className="w-full overflow-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-6 max-h-[70vh]">
             <ResumeLivePreview scale={zoomScale} />
           </div>
         </div>

@@ -4,8 +4,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { useToast } from "../contexts/ToastContext";
-
-const RESUMES_KEY = "resumecraft_resumes";
+import resumeApi from "../api/resumeApi";
 
 const availableTemplates = [
   {
@@ -35,39 +34,64 @@ export default function TemplatesPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleUseTemplate = (templateName) => {
-    // Create new resume draft
-    const id = "res-" + Math.random().toString(36).substring(2, 9);
+  const handleUseTemplate = async (templateName) => {
     const newResume = {
-      id,
-      title: "My " + templateName + " Draft",
-      targetRole: "Professional Role",
+      title: `My ${templateName} Draft`,
+      targetRole: "Software Engineer",
       template: templateName,
       completion: 10,
       atsScore: 0,
-      lastModified: new Date().toISOString(),
-      personalInfo: { name: "", email: "", phone: "", location: "", website: "", summary: "" },
+      personalInfo: { 
+        fullName: "Your Name", 
+        email: "email@example.com", 
+        phone: "", 
+        location: "", 
+        portfolio: "", 
+        linkedin: "", 
+        github: "" 
+      },
       experience: [],
-      education: [],
+      education: [
+        {
+          institution: "Placeholder School",
+          degree: "Degree",
+          fieldOfStudy: "Field",
+          startDate: "2020",
+          endDate: "2024"
+        }
+      ],
       projects: [],
       skills: [],
       certifications: [],
-      languages: []
+      achievements: []
     };
 
-    const localData = localStorage.getItem(RESUMES_KEY);
-    const list = localData ? JSON.parse(localData) : [];
-    const updated = [newResume, ...list];
-    
-    localStorage.setItem(RESUMES_KEY, JSON.stringify(updated));
-    toast({
-      variant: "success",
-      title: "Template Activated",
-      description: `Draft created using "${templateName}". Redirecting...`
-    });
-    setTimeout(() => {
-      navigate(`/builder/${id}`);
-    }, 500);
+    try {
+      const response = await resumeApi.create(newResume);
+      if (response.success && response.data && response.data._id) {
+        toast({
+          variant: "success",
+          title: "Template Activated",
+          description: `Draft created using "${templateName}". Redirecting...`
+        });
+        const newId = response.data._id;
+        setTimeout(() => {
+          navigate(`/builder/${newId}`);
+        }, 500);
+      } else {
+        toast({
+          variant: "danger",
+          title: "Activation Failed",
+          description: response.message || "Failed to create resume from template."
+        });
+      }
+    } catch (err) {
+      toast({
+        variant: "danger",
+        title: "Activation Failed",
+        description: err.response?.data?.message || "Could not create a resume draft from template."
+      });
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "./ToastContext";
 import resumeApi from "../api/resumeApi";
@@ -26,7 +26,8 @@ const emptyResumeState = {
   projects: [],
   skills: [], // array of objects matching { category, items: [] }
   certifications: [],
-  achievements: []
+  achievements: [],
+  analysis: null
 };
 
 export function ResumeFormProvider({ children }) {
@@ -37,6 +38,10 @@ export function ResumeFormProvider({ children }) {
   const [resumeData, setResumeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(0);
+  const [autosaveStatus, setAutosaveStatus] = useState("saved"); // 'saved' | 'saving' | 'unsaved'
+
+  const timeoutRef = useRef(null);
+  const pendingChangesRef = useRef(null);
 
   // Load resume data
   useEffect(() => {
@@ -88,11 +93,35 @@ export function ResumeFormProvider({ children }) {
             }
           }
 
+          const mappedExperience = (item.experience || []).map(exp => ({
+            ...exp,
+            id: exp._id || exp.id
+          }));
+
+          const mappedEducation = (item.education || []).map(edu => ({
+            ...edu,
+            id: edu._id || edu.id,
+            school: edu.institution || edu.school || "",
+            gpa: edu.cgpa || edu.gpa || ""
+          }));
+
+          const mappedProjects = (item.projects || []).map(proj => ({
+            ...proj,
+            id: proj._id || proj.id,
+            name: proj.title || proj.name || "",
+            link: proj.liveDemo || proj.github || proj.link || "",
+            technologies: Array.isArray(proj.technologies) ? proj.technologies.join(", ") : (proj.technologies || "")
+          }));
+
           setResumeData({
             ...emptyResumeState,
             ...item,
             id: item._id, // Map database _id to local id variable
             skills: flatSkills,
+            experience: mappedExperience,
+            education: mappedEducation,
+            projects: mappedProjects,
+            analysis: item.analysis || null,
             personalInfo: { ...emptyResumeState.personalInfo, ...(item.personalInfo || {}) }
           });
         } else {
@@ -128,37 +157,130 @@ export function ResumeFormProvider({ children }) {
     return Math.round((score / total) * 100);
   };
 
-  // Autosave to backend database
-  const saveResume = useCallback(async (updatedData) => {
+  // Helper to build clean API payload
+  const buildPayload = useCallback((dataToSave) => {
+    const payload = { ...dataToSave };
+    delete payload._id;
+    delete payload.user;
+    delete payload.createdAt;
+    delete payload.updatedAt;
+    delete payload.id;
+    
+    payload.skills = Array.isArray(dataToSave.skills)
+      ? [{ category: "Core Skills", items: dataToSave.skills }]
+      : [];
+
+    if (payload.experience) {
+      payload.experience = payload.experience.map(exp => {
+        const item = { ...exp };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.education) {
+      payload.education = payload.education.map(edu => {
+        const item = {
+          ...edu,
+          institution: edu.school || edu.institution || "",
+          cgpa: edu.gpa || edu.cgpa || ""
+        };
+        delete item.school;
+        delete item.gpa;
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.projects) {
+      payload.projects = payload.projects.map(proj => {
+        const item = {
+          ...proj,
+          title: proj.name || proj.title || "",
+          liveDemo: proj.link || proj.liveDemo || "",
+          technologies: typeof proj.technologies === 'string'
+            ? proj.technologies.split(',').map(t => t.trim()).filter(Boolean)
+            : (Array.isArray(proj.technologies) ? proj.technologies : [])
+        };
+        delete item.name;
+        delete item.link;
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    return payload;
+  }, []);
+
+  // Synchronous/immediate save flush function
+  const flushSave = useCallback(async () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (!pendingChangesRef.current) return;
+
+    const dataToSave = pendingChangesRef.current;
+    pendingChangesRef.current = null;
+    setAutosaveStatus("saving");
+
+    try {
+      const payload = buildPayload(dataToSave);
+      await resumeApi.update(id, payload);
+      setAutosaveStatus("saved");
+    } catch (err) {
+      console.error("Autosave database write failed:", err);
+      setAutosaveStatus("unsaved");
+    }
+  }, [id, buildPayload]);
+
+  // Autosave function that queues changes
+  const saveResume = useCallback((updatedData) => {
     if (!id || !updatedData) return;
 
-    // Instantly calculate completion and set local react state to keep UI responsive
+    // Calculate completion and set state instantly so live preview is responsive
     const completion = calculateCompletion(updatedData);
     const finalData = {
       ...updatedData,
       completion
     };
     setResumeData(finalData);
+    setAutosaveStatus("unsaved");
+    pendingChangesRef.current = finalData;
 
-    try {
-      const payload = { ...finalData };
-      // Strip automatically generated fields and local id mapping to prevent Mongoose validation warnings
-      delete payload._id;
-      delete payload.user;
-      delete payload.createdAt;
-      delete payload.updatedAt;
-      delete payload.id;
-      
-      const finalSkills = Array.isArray(finalData.skills)
-        ? [{ category: "Core Skills", items: finalData.skills }]
-        : [];
-      payload.skills = finalSkills;
-
-      await resumeApi.update(id, payload);
-    } catch (err) {
-      console.error("Autosave to database failed:", err);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }, [id]);
+
+    timeoutRef.current = setTimeout(() => {
+      flushSave();
+    }, 1000);
+  }, [id, flushSave]);
+
+  // Flush on unmount to make sure no updates are left in memory
+  useEffect(() => {
+    return () => {
+      if (pendingChangesRef.current) {
+        const dataToSave = pendingChangesRef.current;
+        pendingChangesRef.current = null;
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
+        const runUnmountSave = async () => {
+          try {
+            const payload = buildPayload(dataToSave);
+            await resumeApi.update(id, payload);
+          } catch (err) {
+            console.error("Autosave cleanup write failed:", err);
+          }
+        };
+        runUnmountSave();
+      }
+    };
+  }, [id, buildPayload]);
 
   const updatePersonalInfo = (fields) => {
     const updated = {
@@ -220,6 +342,20 @@ export function ResumeFormProvider({ children }) {
     saveResume(updated);
   };
 
+  const updateGeneratedContent = (generatedContent) => {
+    setResumeData(prev => ({
+      ...prev,
+      generatedContent
+    }));
+  };
+
+  const updateAnalysis = (analysis) => {
+    setResumeData(prev => ({
+      ...prev,
+      analysis
+    }));
+  };
+
   const resetForm = () => {
     const updated = {
       ...resumeData,
@@ -250,7 +386,11 @@ export function ResumeFormProvider({ children }) {
         removeListItem,
         updateSkills,
         resetForm,
-        saveResume
+        saveResume,
+        updateGeneratedContent,
+        updateAnalysis,
+        autosaveStatus,
+        flushSave
       }}
     >
       {children}
