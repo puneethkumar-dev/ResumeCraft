@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Settings, Lock, Sparkles, Bell, Save, CheckCircle } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
@@ -16,6 +16,53 @@ export default function SettingsPage() {
   const [aiAdvanced, setAiAdvanced] = useState(true);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const [activeSection, setActiveSection] = useState("profile");
+
+  useEffect(() => {
+    const sections = ["profile-details", "password-security", "ai-preferences"];
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: 0
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target.id === "profile-details") {
+            setActiveSection("profile");
+          } else if (entry.target.id === "password-security") {
+            setActiveSection("security");
+          } else if (entry.target.id === "ai-preferences") {
+            setActiveSection("preferences");
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const scrollToSection = (id, sectionKey) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      setActiveSection(sectionKey);
+    }
+  };
 
   const handleProfileSave = async (e) => {
     e.preventDefault();
@@ -71,18 +118,39 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Left Side: Category Links */}
-        <div className="space-y-2 md:col-span-1">
+        <div className="space-y-2 md:col-span-1 md:sticky md:top-24 self-start">
           <div className="p-1 bg-slate-100 dark:bg-slate-900 rounded-xl space-y-1">
-            <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 text-violet-650 dark:text-white shadow-xs">
-              <User className="h-4 w-4 text-violet-500" />
+            <button 
+              onClick={() => scrollToSection("profile-details", "profile")}
+              className={`flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                activeSection === "profile"
+                  ? "bg-white dark:bg-slate-800 text-violet-650 dark:text-white shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800/40"
+              }`}
+            >
+              <User className={`h-4 w-4 transition-colors ${activeSection === "profile" ? "text-violet-500" : "text-slate-400 dark:text-slate-500"}`} />
               Profile Details
             </button>
-            <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/40">
-              <Lock className="h-4 w-4 text-slate-400" />
+            <button 
+              onClick={() => scrollToSection("password-security", "security")}
+              className={`flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                activeSection === "security"
+                  ? "bg-white dark:bg-slate-800 text-violet-650 dark:text-white shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800/40"
+              }`}
+            >
+              <Lock className={`h-4 w-4 transition-colors ${activeSection === "security" ? "text-violet-500" : "text-slate-400 dark:text-slate-500"}`} />
               Password & Security
             </button>
-            <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/40">
-              <Sparkles className="h-4 w-4 text-slate-400" />
+            <button 
+              onClick={() => scrollToSection("ai-preferences", "preferences")}
+              className={`flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                activeSection === "preferences"
+                  ? "bg-white dark:bg-slate-800 text-violet-650 dark:text-white shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800/40"
+              }`}
+            >
+              <Sparkles className={`h-4 w-4 transition-colors ${activeSection === "preferences" ? "text-violet-500" : "text-slate-400 dark:text-slate-500"}`} />
               AI Preferences
             </button>
           </div>
@@ -92,7 +160,7 @@ export default function SettingsPage() {
         <div className="md:col-span-2 space-y-6">
           
           {/* Profile Form */}
-          <Card className="glass">
+          <Card id="profile-details" className="glass">
             <CardHeader>
               <CardTitle>Profile Details</CardTitle>
               <CardDescription>Update your email address and profile username details.</CardDescription>
@@ -124,7 +192,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Security Form */}
-          <Card className="glass">
+          <Card id="password-security" className="glass">
             <CardHeader>
               <CardTitle>Password & Security</CardTitle>
               <CardDescription>Keep your account secure with a strong password.</CardDescription>
@@ -166,7 +234,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Preferences */}
-          <Card className="glass">
+          <Card id="ai-preferences" className="glass">
             <CardHeader>
               <CardTitle>Advanced Preferences</CardTitle>
             </CardHeader>

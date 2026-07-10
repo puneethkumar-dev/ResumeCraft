@@ -109,7 +109,15 @@ const certificationSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  expiryDate: {
+    type: String,
+    trim: true
+  },
   credentialId: {
+    type: String,
+    trim: true
+  },
+  credentialUrl: {
     type: String,
     trim: true
   }
@@ -123,7 +131,32 @@ const achievementSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true
+  },
+  date: {
+    type: String,
+    trim: true
   }
+});
+
+const languageSchema = new mongoose.Schema({
+  name: { type: String, trim: true },
+  proficiency: { type: String, trim: true }
+});
+
+const volunteerSchema = new mongoose.Schema({
+  organization: { type: String, trim: true },
+  role: { type: String, trim: true },
+  startDate: { type: String, trim: true },
+  endDate: { type: String, trim: true },
+  description: { type: String, trim: true }
+});
+
+const publicationSchema = new mongoose.Schema({
+  title: { type: String, trim: true },
+  publisher: { type: String, trim: true },
+  date: { type: String, trim: true },
+  link: { type: String, trim: true },
+  description: { type: String, trim: true }
 });
 
 const generatedContentSchema = new mongoose.Schema({
@@ -152,6 +185,21 @@ const resumeSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'User reference is required'],
       index: true
+    },
+    title: {
+      type: String,
+      trim: true,
+      default: 'Untitled Resume'
+    },
+    targetRole: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    template: {
+      type: String,
+      trim: true,
+      default: 'Modern Minimalist'
     },
     personalInfo: {
       fullName: {
@@ -211,6 +259,22 @@ const resumeSchema = new mongoose.Schema(
     },
     achievements: {
       type: [achievementSchema],
+      default: []
+    },
+    languages: {
+      type: [languageSchema],
+      default: []
+    },
+    interests: {
+      type: [String],
+      default: []
+    },
+    volunteerExperience: {
+      type: [volunteerSchema],
+      default: []
+    },
+    publications: {
+      type: [publicationSchema],
       default: []
     },
     generatedContent: {

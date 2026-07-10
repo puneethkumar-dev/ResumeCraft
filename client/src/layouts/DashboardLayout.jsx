@@ -232,8 +232,8 @@ export default function DashboardLayout() {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-violet-600 ring-2 ring-white dark:ring-slate-900"></span>
             </button>
 
-            {/* Profile Dropdown Indicator */}
-            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3">
+             {/* Profile Details & Logout Button */}
+            <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
               <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow">
                 {(currentUser?.name || "US").substring(0, 2)}
               </div>
@@ -241,6 +241,13 @@ export default function DashboardLayout() {
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{currentUser.name}</p>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px]">{currentUser.email}</p>
               </div>
+              <button
+                onClick={handleLogout}
+                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors ml-1 cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </header>

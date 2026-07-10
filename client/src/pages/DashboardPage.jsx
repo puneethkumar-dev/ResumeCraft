@@ -11,6 +11,7 @@ import { Badge } from "../components/ui/badge";
 import { Progress, CircularProgress } from "../components/ui/progress";
 import { Dialog } from "../components/ui/dialog";
 import { useToast } from "../contexts/ToastContext";
+import { getResumeDisplayName } from "../utils/resume";
 
 import resumeApi from "../api/resumeApi";
 
@@ -55,8 +56,8 @@ export default function DashboardPage() {
 
   const handleCreateNew = async () => {
     const defaultResume = {
-      title: "Untitled Resume",
-      targetRole: "Software Engineer",
+      title: "",
+      targetRole: "",
       template: "Modern Minimalist",
       completion: 10,
       atsScore: 0,
@@ -272,14 +273,16 @@ export default function DashboardPage() {
                     <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-display font-bold text-slate-900 dark:text-white truncate">
-                          {resume.title}
+                          {getResumeDisplayName(resume)}
                         </h4>
                         {resume.completion === 100 && (
                           <Badge variant="success">Completed</Badge>
                         )}
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        Target: <span className="font-semibold text-slate-700 dark:text-slate-300">{resume.targetRole}</span> &bull; {resume.template}
+                        Target: <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          {resume.targetRole && resume.targetRole.trim() !== "" ? resume.targetRole : "New Resume"}
+                        </span> &bull; {resume.template}
                       </p>
                       <div className="flex items-center gap-4 text-[10px] text-slate-400 dark:text-slate-500 pt-1">
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> Last modified {new Date(resume.lastModified).toLocaleDateString()}</span>
