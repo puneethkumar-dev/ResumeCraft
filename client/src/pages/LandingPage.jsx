@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, FileText, ChevronRight, CheckCircle2, Star, 
@@ -9,7 +9,8 @@ import {
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import LandingBackground from "../components/LandingBackground";
+import LoginPage from "./auth/LoginPage";
+import RegisterPage from "./auth/RegisterPage";
 
 const features = [
   {
@@ -75,6 +76,7 @@ export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [promptText, setPromptText] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handlePromptSubmit = (e) => {
     e.preventDefault();
@@ -88,11 +90,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 scroll-smooth overflow-x-hidden relative">
-      <LandingBackground />
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#09090b] dark:text-[#f5f5f5]/90 transition-colors duration-300 scroll-smooth overflow-x-hidden relative">
       
       {/* Header/Navbar */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/40">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-white/8 dark:shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-colors duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -107,25 +108,25 @@ export default function LandingPage() {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">How it Works</a>
-              <a href="#faq" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">FAQ</a>
+              <a href="#features" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-500 transition-colors">Features</a>
+              <a href="#how-it-works" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-500 transition-colors">How it Works</a>
+              <a href="#faq" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-500 transition-colors">FAQ</a>
             </nav>
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-3">
               <Link to="/login">
-                <Button variant="ghost" size="sm">Sign In</Button>
+                <Button variant="ghost" size="sm" className="dark:hover:bg-black/50 dark:hover:text-zinc-200">Sign In</Button>
               </Link>
               <Link to="/register">
-                <Button size="sm" icon={ArrowRight} iconPosition="right">Get Started</Button>
+                <Button size="sm" icon={ArrowRight} iconPosition="right" className="hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-md shadow-violet-500/10">Get Started</Button>
               </Link>
             </div>
 
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              className="md:hidden p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-black/40 rounded-lg transition-colors cursor-pointer"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -139,7 +140,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 space-y-3"
+              className="md:hidden border-b border-slate-200 dark:border-zinc-800/40 bg-white dark:bg-[#09090b] px-4 py-4 space-y-3 shadow-lg"
             >
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-600 dark:text-slate-400 py-1.5">Features</a>
               <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-600 dark:text-slate-400 py-1.5">How it Works</a>
@@ -147,10 +148,10 @@ export default function LandingPage() {
               <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
               <div className="flex flex-col gap-2">
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
+                  <Button variant="outline" className="w-full dark:hover:bg-black/50 dark:hover:text-zinc-200 dark:border-zinc-800/60">Sign In</Button>
                 </Link>
                 <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Get Started</Button>
+                  <Button className="w-full hover:scale-[1.03] active:scale-95 transition-all duration-300">Get Started</Button>
                 </Link>
               </div>
             </motion.div>
@@ -166,13 +167,15 @@ export default function LandingPage() {
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center text-center">
           <div className="max-w-3xl flex flex-col items-center text-center space-y-6">
-            <Badge variant="secondary" className="bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-850/40 py-1 px-3 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 animate-pulse-slow">
+            <Badge variant="secondary" className="bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 py-1 px-3 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 animate-pulse-slow">
               <Sparkles className="h-3.5 w-3.5" />
               Professional Resume Builder
             </Badge>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] w-full">
-              Craft <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 bg-clip-text text-transparent">Professional</span> Resumes
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-[#f5f5f5] leading-[1.1] w-full relative z-10">
+              {/* subtle text backing glow */}
+              <span className="absolute inset-0 blur-3xl bg-gradient-to-r from-violet-500/5 to-indigo-500/5 dark:from-violet-500/2 dark:to-indigo-500/2 pointer-events-none -z-10" />
+              Craft <span className="bg-gradient-to-r from-violet-600 via-pink-500 to-sky-500 bg-clip-text text-transparent dark:from-violet-400 dark:via-pink-400 dark:to-sky-300 font-extrabold">Professional</span> Resumes
             </h1>
 
             <p className="text-base sm:text-lg text-slate-550 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
@@ -181,7 +184,7 @@ export default function LandingPage() {
 
             {/* Middle Prompt Input Box */}
             <div className="w-full max-w-xl mx-auto">
-              <form onSubmit={handlePromptSubmit} className="relative flex items-center p-1.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent transition-all duration-200 shadow-xs">
+              <form onSubmit={handlePromptSubmit} className="relative flex items-center p-1.5 rounded-2xl bg-slate-50 dark:bg-[#0f0f12]/60 dark:hover:bg-[#060608]/80 border border-slate-200 dark:border-zinc-800/70 focus-within:ring-2 focus-within:ring-violet-500 focus-within:dark:ring-violet-600/50 focus-within:border-transparent transition-all duration-300 shadow-xs backdrop-blur-xs">
                 <div className="flex items-center pl-3.5 pr-2 pointer-events-none text-slate-400 dark:text-slate-500">
                   <Sparkles className="h-4.5 w-4.5" />
                 </div>
@@ -205,20 +208,20 @@ export default function LandingPage() {
             {/* Sub-CTA buttons */}
             <div className="flex flex-wrap gap-4 items-center justify-center pt-2">
               <Link to="/register">
-                <Button size="lg" className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white font-semibold flex items-center gap-2 cursor-pointer shadow-md shadow-slate-950/10 dark:shadow-white/5">
+                <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-md shadow-violet-500/15 text-white font-semibold flex items-center gap-2 cursor-pointer border-0">
                   Start Building
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/templates">
-                <Button variant="outline" size="lg" className="border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-355 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+                <Button variant="outline" size="lg" className="border-slate-200 dark:border-zinc-800/60 text-slate-655 dark:text-slate-355 hover:bg-slate-100/50 dark:hover:bg-black/50 hover:scale-[1.02] active:scale-98 transition-all duration-300 cursor-pointer">
                   View Templates
                 </Button>
               </Link>
             </div>
 
             {/* Stats Counters */}
-            <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-200/60 dark:border-slate-800/40 w-full max-w-md mx-auto">
+            <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-200/60 dark:border-zinc-800/60 w-full max-w-md mx-auto">
               <div>
                 <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-display">50K+</div>
                 <div className="text-[11px] text-slate-450 dark:text-slate-500 font-semibold tracking-wide uppercase mt-1">Resumes Created</div>
@@ -240,10 +243,10 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="py-20 md:py-28 bg-transparent relative border-t border-b border-slate-200/50 dark:border-slate-800/40">
+      <section id="features" className="py-20 md:py-28 bg-transparent relative border-t border-b border-slate-200/50 dark:border-white/8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-[#f5f5f5] mb-4">
               Equipped with elite features to supercharge your resume
             </h2>
             <p className="text-base text-slate-500 dark:text-slate-400">
@@ -255,12 +258,12 @@ export default function LandingPage() {
             {features.map((feat, index) => {
               const Icon = feat.icon;
               return (
-                <Card key={index} className="hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 group">
+                <Card key={index} className="hover:shadow-xl hover:-translate-y-1 hover:bg-white hover:border-violet-300/80 dark:bg-[#111827]/35 dark:backdrop-blur-xs dark:hover:bg-[#0b0f19] hover:border-slate-300 dark:border-white/8 dark:hover:border-zinc-800/80 transition-all duration-300 group shadow-xs">
                   <CardContent className="p-6">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 mb-5 group-hover:scale-110 transition-transform">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="font-display font-bold text-slate-900 dark:text-white mb-2">{feat.title}</h3>
+                    <h3 className="font-display font-bold text-slate-900 dark:text-[#f5f5f5] mb-2">{feat.title}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{feat.description}</p>
                   </CardContent>
                 </Card>
@@ -274,7 +277,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-20 md:py-28 bg-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-[#f5f5f5] mb-4">
               How ResumeCraft works
             </h2>
             <p className="text-base text-slate-500 dark:text-slate-400">
@@ -284,11 +287,11 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
             {steps.map((step, idx) => (
-              <div key={idx} className="flex flex-col text-left group">
-                <span className="font-display text-5xl font-black text-violet-600/10 group-hover:text-violet-600/20 dark:text-violet-400/5 dark:group-hover:text-violet-400/10 transition-colors leading-none mb-3">
+              <div key={idx} className="flex flex-col text-left group p-6 rounded-2xl border border-transparent hover:border-slate-200/60 hover:bg-slate-50/60 dark:hover:bg-[#0b0f19] dark:hover:border-white/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs">
+                <span className="font-display text-5xl font-black text-violet-650/15 group-hover:text-violet-600 dark:text-violet-500/10 dark:group-hover:text-violet-400 transition-colors leading-none mb-3">
                   {step.number}
                 </span>
-                <h3 className="font-display font-bold text-slate-900 dark:text-white mb-2">{step.title}</h3>
+                <h3 className="font-display font-bold text-slate-900 dark:text-[#f5f5f5] group-hover:text-violet-700 dark:group-hover:text-violet-400 transition-colors mb-2">{step.title}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{step.desc}</p>
               </div>
             ))}
@@ -297,10 +300,10 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Accordion Section */}
-      <section id="faq" className="py-20 md:py-28 bg-transparent border-t border-slate-200/50 dark:border-slate-800/40">
+      <section id="faq" className="py-20 md:py-28 bg-transparent border-t border-slate-200/50 dark:border-white/8">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-[#f5f5f5] mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-base text-slate-500 dark:text-slate-400">
@@ -312,10 +315,10 @@ export default function LandingPage() {
             {faqs.map((faq, idx) => {
               const isOpen = activeFaq === idx;
               return (
-                <div key={idx} className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-900/20">
+                <div key={idx} className="rounded-2xl border border-slate-200 dark:border-white/8 overflow-hidden bg-slate-50/50 dark:bg-[#111827]/15 hover:bg-white hover:border-violet-300/60 dark:hover:bg-[#0b0f19] hover:shadow-md transition-all duration-300">
                   <button
                     onClick={() => toggleFaq(idx)}
-                    className="flex w-full items-center justify-between px-6 py-4.5 text-left font-semibold text-slate-900 dark:text-white transition-colors"
+                    className="flex w-full items-center justify-between px-6 py-4.5 text-left font-semibold text-slate-900 dark:text-[#f5f5f5] transition-colors"
                   >
                     <span className="text-sm font-semibold">{faq.question}</span>
                     <HelpCircle className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-violet-500' : ''}`} />
@@ -341,19 +344,35 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="py-16 md:py-24 bg-gradient-to-tr from-violet-900 via-indigo-950 to-slate-950 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-violet-500/20 blur-[120px] pointer-events-none"></div>
+      <section className="py-16 md:py-24 bg-transparent text-slate-900 dark:text-[#f5f5f5] relative overflow-hidden border-t border-slate-200/50 dark:border-white/8">
+        {/* Subtle grid pattern matching Hero */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.5] dark:opacity-[0.3] pointer-events-none z-0" />
+        
+        {/* Ambient radial glows matching Hero */}
+        <div 
+          className="absolute top-1/2 left-1/4 -translate-y-1/2 h-[350px] w-[350px] rounded-full pointer-events-none blur-[100px] opacity-[0.35]"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0) 70%)'
+          }}
+        />
+        <div 
+          className="absolute top-1/3 right-1/4 h-[300px] w-[300px] rounded-full pointer-events-none blur-[100px] opacity-[0.3]"
+          style={{
+            background: 'radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, rgba(244, 63, 94, 0) 70%)'
+          }}
+        />
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 text-center relative z-10">
-          <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4 relative z-10">
+            {/* subtle text backing glow */}
+            <span className="absolute inset-0 blur-3xl bg-gradient-to-r from-violet-500/5 to-indigo-500/5 dark:from-violet-500/2 dark:to-indigo-500/2 pointer-events-none -z-10" />
             Are you ready to land your dream job?
           </h2>
-          <p className="text-slate-300 max-w-xl mx-auto mb-8 text-sm md:text-base leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto mb-8 text-sm md:text-base leading-relaxed relative z-10">
             Create an account in less than 30 seconds. Start optimizing your resume metrics and climb to the top of recruiter pipelines today.
           </p>
           <Link to="/register">
-            <Button size="lg" variant="primary" className="bg-white hover:bg-slate-100 text-slate-900 shadow-xl cursor-pointer">
+            <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-md shadow-violet-500/15 text-white font-semibold cursor-pointer border-0">
               Get Started for Free
             </Button>
           </Link>
@@ -361,33 +380,33 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-12 border-t border-slate-900">
+      <footer className="bg-gradient-to-b from-[#fafafa] to-[#f5f3ff]/30 dark:from-[#09090b] dark:to-[#0f0f12] text-slate-700 dark:text-slate-400 py-16 border-t border-slate-200/50 dark:border-white/8 transition-colors duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">
               <FileText className="h-4.5 w-4.5" />
             </div>
-            <span className="font-display text-base font-bold text-white">
+            <span className="font-display text-base font-bold text-slate-900 dark:text-[#f5f5f5]">
               ResumeCraft
             </span>
           </div>
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-500">
             &copy; {new Date().getFullYear()} ResumeCraft. All rights reserved. Designed for elite developers and industry leaders.
           </p>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-white transition-colors" title="Twitter">
+            <a href="#" className="text-slate-500 hover:text-violet-600 dark:text-zinc-500 dark:hover:text-violet-400 transition-colors duration-300" title="Twitter">
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
               </svg>
             </a>
-            <a href="#" className="hover:text-white transition-colors" title="LinkedIn">
+            <a href="#" className="text-slate-500 hover:text-violet-600 dark:text-zinc-500 dark:hover:text-violet-400 transition-colors duration-300" title="LinkedIn">
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
               </svg>
             </a>
-            <a href="#" className="hover:text-white transition-colors" title="GitHub">
+            <a href="#" className="text-slate-500 hover:text-violet-600 dark:text-zinc-500 dark:hover:text-violet-400 transition-colors duration-300" title="GitHub">
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
               </svg>
@@ -395,6 +414,40 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Centered Auth Modal Overlay */}
+      <AnimatePresence>
+        {(location.pathname === "/login" || location.pathname === "/register") && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 dark:bg-black/65 backdrop-blur-md p-4"
+          >
+            {/* Modal Clickaway backdrop */}
+            <div className="absolute inset-0 cursor-pointer" onClick={() => navigate("/")} />
+
+            <motion.div 
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="relative w-full max-w-[440px] rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-white/8 shadow-2xl p-8 z-10"
+            >
+              {/* Close Button X */}
+              <button 
+                onClick={() => navigate("/")}
+                className="absolute top-5 right-5 h-8 w-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-zinc-900 border border-slate-200/50 dark:border-zinc-800 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all cursor-pointer"
+                title="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              {location.pathname === "/login" ? <LoginPage /> : <RegisterPage />}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

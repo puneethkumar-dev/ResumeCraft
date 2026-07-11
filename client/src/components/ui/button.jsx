@@ -13,14 +13,14 @@ const Button = forwardRef(({
   type = "button",
   ...props
 }, ref) => {
-  const baseStyles = "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500 disabled:opacity-50 disabled:pointer-events-none active:scale-98 cursor-pointer";
+  const baseStyles = "inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500 disabled:opacity-50 disabled:pointer-events-none active:scale-95 cursor-pointer";
 
   const variants = {
-    primary: "bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-500/10",
-    secondary: "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-900 dark:text-slate-100",
-    outline: "border border-slate-200 dark:border-slate-800 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300",
-    ghost: "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300",
-    danger: "bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-500/10",
+    primary: "bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] text-white hover:scale-[1.025] hover:brightness-95 hover:shadow-lg hover:shadow-[#7C3AED]/25 border-0 shadow-md shadow-[#7C3AED]/15",
+    secondary: "border-2 border-[#7C3AED]/50 hover:border-[#7C3AED] text-[#7C3AED] dark:text-[#a78bfa] bg-transparent hover:bg-[#7C3AED]/10 hover:scale-[1.025] hover:shadow-sm",
+    outline: "border-2 border-[#7C3AED]/60 hover:border-[#7C3AED] text-[#7C3AED] dark:text-[#a78bfa] bg-transparent hover:bg-[#7C3AED]/10 hover:scale-[1.025] hover:shadow-sm",
+    ghost: "bg-transparent hover:bg-slate-200/50 dark:hover:bg-[#111827]/40 text-slate-800 dark:text-zinc-200",
+    danger: "bg-gradient-to-r from-red-500 via-rose-500 to-pink-650 hover:scale-[1.025] hover:brightness-95 text-white shadow-md shadow-red-500/15 border-0",
     link: "bg-transparent text-violet-600 dark:text-violet-400 hover:underline p-0 active:scale-100"
   };
 

@@ -6,8 +6,8 @@ import resumeApi from "../api/resumeApi";
 const ResumeFormContext = createContext(null);
 
 const emptyResumeState = {
-  title: "My New Resume",
-  targetRole: "Software Engineer",
+  title: "",
+  targetRole: "",
   template: "Modern Minimalist",
   completion: 10,
   atsScore: 0,
@@ -27,6 +27,10 @@ const emptyResumeState = {
   skills: [], // array of objects matching { category, items: [] }
   certifications: [],
   achievements: [],
+  languages: [],
+  interests: [],
+  volunteerExperience: [],
+  publications: [],
   analysis: null
 };
 
@@ -130,6 +134,36 @@ export function ResumeFormProvider({ children }) {
             technologies: Array.isArray(proj.technologies) ? proj.technologies.join(", ") : (proj.technologies || "")
           }));
 
+          const mappedCertifications = (item.certifications || []).map(cert => ({
+            ...cert,
+            id: cert._id || cert.id
+          }));
+
+          const mappedAchievements = (item.achievements || []).map(ach => ({
+            ...ach,
+            id: ach._id || ach.id
+          }));
+
+          const mappedLanguages = (item.languages || []).map(lang => ({
+            ...lang,
+            id: lang._id || lang.id
+          }));
+
+          const mappedVolunteer = (item.volunteerExperience || []).map(vol => ({
+            ...vol,
+            id: vol._id || vol.id
+          }));
+
+          const mappedPublications = (item.publications || []).map(pub => ({
+            ...pub,
+            id: pub._id || pub.id
+          }));
+
+          const mappedInterests = (item.interests || []).map((interest, idx) => ({
+            id: `interest-${idx}`,
+            name: interest
+          }));
+
           setResumeData({
             ...emptyResumeState,
             ...item,
@@ -138,6 +172,12 @@ export function ResumeFormProvider({ children }) {
             experience: mappedExperience,
             education: mappedEducation,
             projects: mappedProjects,
+            certifications: mappedCertifications,
+            achievements: mappedAchievements,
+            languages: mappedLanguages,
+            interests: mappedInterests,
+            volunteerExperience: mappedVolunteer,
+            publications: mappedPublications,
             analysis: item.analysis || null,
             personalInfo: { ...emptyResumeState.personalInfo, ...(item.personalInfo || {}) }
           });
@@ -224,6 +264,52 @@ export function ResumeFormProvider({ children }) {
         if (item._id) delete item.id;
         return item;
       });
+    }
+
+    if (payload.certifications) {
+      payload.certifications = payload.certifications.map(c => {
+        const item = { ...c };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.achievements) {
+      payload.achievements = payload.achievements.map(a => {
+        const item = { ...a };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.languages) {
+      payload.languages = payload.languages.map(l => {
+        const item = { ...l };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.volunteerExperience) {
+      payload.volunteerExperience = payload.volunteerExperience.map(v => {
+        const item = { ...v };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.publications) {
+      payload.publications = payload.publications.map(p => {
+        const item = { ...p };
+        if (item._id) delete item.id;
+        return item;
+      });
+    }
+
+    if (payload.interests) {
+      payload.interests = payload.interests
+        .map(i => typeof i === 'string' ? i : i.name)
+        .filter(Boolean);
     }
 
     return payload;

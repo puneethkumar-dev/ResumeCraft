@@ -43,15 +43,12 @@ export default function LoginPage() {
 
   return (
     <div className="w-full">
-      <div className="text-left mb-6">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Welcome back
+          Welcome Back
         </h2>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          New to ResumeCraft?{" "}
-          <Link to="/register" className="font-semibold text-violet-600 dark:text-violet-400 hover:underline">
-            Create an account
-          </Link>
+          Sign in to continue building amazing resumes
         </p>
       </div>
 
@@ -64,7 +61,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-            Email address
+            Email Address
           </label>
           <div className="relative rounded-xl shadow-xs">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -74,7 +71,7 @@ export default function LoginPage() {
               type="email"
               {...register("email")}
               className={`block w-full rounded-xl border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-800 focus:ring-violet-500'} bg-white dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-hidden focus:ring-2 focus:border-transparent dark:text-white`}
-              placeholder="you@example.com"
+              placeholder="hexagonservices@gmail.com"
             />
           </div>
           {errors.email && (
@@ -117,17 +114,23 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-700 active:scale-98 text-white px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none shadow-md shadow-violet-500/20 cursor-pointer"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 active:scale-98 text-white px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none shadow-md shadow-violet-500/20 cursor-pointer"
         >
           {loading ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
             <>
               Sign In
-              <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>
+
+        <p className="mt-4 text-xs text-center text-slate-500 dark:text-slate-400">
+          Don't have an account?{" "}
+          <Link to="/register" className="font-semibold text-violet-600 dark:text-violet-400 hover:underline">
+            Sign Up
+          </Link>
+        </p>
       </form>
     </div>
   );

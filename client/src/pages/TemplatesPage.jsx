@@ -37,7 +37,7 @@ export default function TemplatesPage() {
   const handleUseTemplate = async (templateName) => {
     const newResume = {
       title: `My ${templateName} Draft`,
-      targetRole: "Software Engineer",
+      targetRole: "",
       template: templateName,
       completion: 10,
       atsScore: 0,

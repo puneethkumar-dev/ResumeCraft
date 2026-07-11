@@ -11,6 +11,7 @@ import { Textarea } from "../components/ui/textarea";
 import { Select } from "../components/ui/select";
 import { CircularProgress } from "../components/ui/progress";
 import { useToast } from "../contexts/ToastContext";
+import { getResumeDisplayName } from "../utils/resume";
 
 import resumeApi from "../api/resumeApi";
 import aiApi from "../api/aiApi";
@@ -144,7 +145,7 @@ export default function ATSAnalyzerPage() {
                 placeholder="Choose a profile..."
               >
                 {resumes.map(r => (
-                  <option key={r.id} value={r.id}>{r.title} ({r.targetRole})</option>
+                  <option key={r.id} value={r.id}>{getResumeDisplayName(r)}</option>
                 ))}
               </Select>
 

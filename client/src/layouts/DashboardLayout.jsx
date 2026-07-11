@@ -245,40 +245,22 @@ export default function DashboardLayout() {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-violet-600 ring-2 ring-white dark:ring-slate-900"></span>
             </button>
 
-            {/* Profile Dropdown Indicator */}
-            <div className="relative" ref={dropdownRef}>
-              <button 
-                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3 hover:opacity-80 transition-opacity focus:outline-none cursor-pointer"
-                title="Open user profile menu"
+             {/* Profile Details & Logout Button */}
+            <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow">
+                {(currentUser?.name || "US").substring(0, 2)}
+              </div>
+              <div className="hidden lg:block text-left">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{currentUser.name}</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px]">{currentUser.email}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors ml-1 cursor-pointer"
+                title="Sign Out"
               >
-                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow">
-                  {(currentUser?.name || "US").substring(0, 2)}
-                </div>
-                <div className="hidden lg:block text-left">
-                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{currentUser.name}</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px]">{currentUser.email}</p>
-                </div>
+                <LogOut className="h-4 w-4" />
               </button>
-
-              {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg py-1.5 z-50 text-left animate-in fade-in slide-in-from-top-1 duration-200">
-                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 lg:hidden">
-                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">{currentUser.name}</p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{currentUser.email}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setProfileMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors gap-2 cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4 shrink-0 text-red-500" />
-                    Sign Out
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </header>

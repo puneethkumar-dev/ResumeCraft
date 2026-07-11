@@ -85,7 +85,7 @@ export default function PersonalInfoStep() {
           icon={Phone}
         />
         <Input
-          label="Location"
+          label="Location (Optional)"
           name="location"
           placeholder="e.g. Bangalore, India"
           value={info.location || ""}
@@ -93,7 +93,7 @@ export default function PersonalInfoStep() {
           icon={MapPin}
         />
         <Input
-          label="Website / Portfolio Link"
+          label="Website / Portfolio Link (Optional)"
           name="portfolio"
           placeholder="e.g. portfolio.com/puneeth"
           value={info.portfolio || ""}
@@ -101,14 +101,14 @@ export default function PersonalInfoStep() {
           icon={Globe}
         />
         <Input
-          label="LinkedIn Link"
+          label="LinkedIn Link (Optional)"
           name="linkedin"
           placeholder="e.g. linkedin.com/in/puneeth"
           value={info.linkedin || ""}
           onChange={handleFieldChange}
         />
         <Input
-          label="GitHub Link"
+          label="GitHub Link (Optional)"
           name="github"
           placeholder="e.g. github.com/puneeth"
           value={info.github || ""}
@@ -119,7 +119,7 @@ export default function PersonalInfoStep() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Professional Summary
+            Professional Summary (Optional)
           </label>
           <Button
             variant="ghost"
