@@ -272,7 +272,7 @@ export default function DashboardPage() {
                     <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-display font-bold text-slate-900 dark:text-white truncate">
-                          {resume.title}
+                          {resume.personalInfo?.fullName ? `${resume.personalInfo.fullName}'s Resume` : resume.title}
                         </h4>
                         {resume.completion === 100 && (
                           <Badge variant="success">Completed</Badge>

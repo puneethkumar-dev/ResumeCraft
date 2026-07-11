@@ -153,6 +153,25 @@ const resumeSchema = new mongoose.Schema(
       required: [true, 'User reference is required'],
       index: true
     },
+    title: {
+      type: String,
+      default: 'Untitled Resume',
+      trim: true
+    },
+    targetRole: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    template: {
+      type: String,
+      default: 'Modern Minimalist',
+      trim: true
+    },
+    completion: {
+      type: Number,
+      default: 0
+    },
     personalInfo: {
       fullName: {
         type: String,

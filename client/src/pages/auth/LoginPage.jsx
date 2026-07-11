@@ -8,7 +8,7 @@ import authApi from "../../api/authApi";
 
 const loginSchema = zod.object({
   email: zod.string().min(1, "Email is required").email("Invalid email format"),
-  password: zod.string().min(6, "Password must be at least 6 characters")
+  password: zod.string().min(8, "Password must be at least 8 characters")
 });
 
 export default function LoginPage() {
