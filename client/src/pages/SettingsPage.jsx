@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { useToast } from "../contexts/ToastContext";
+import authApi from "../api/authApi";
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState(() => {
@@ -68,15 +69,28 @@ export default function SettingsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      localStorage.setItem("user", JSON.stringify(profile));
-      toast({
-        variant: "success",
-        title: "Profile Updated",
-        description: "Your user credentials have been saved."
-      });
+      const response = await authApi.updateProfile(profile.name, profile.email);
+      if (response.success && response.data?.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        setProfile(response.data.user);
+        toast({
+          variant: "success",
+          title: "Profile Updated",
+          description: response.message || "Your profile credentials have been saved in database."
+        });
+      } else {
+        toast({
+          variant: "danger",
+          title: "Update Failed",
+          description: response.message || "Failed to update profile details."
+        });
+      }
     } catch (err) {
-      // ignore
+      toast({
+        variant: "danger",
+        title: "Update Failed",
+        description: err.response?.data?.message || "An error occurred while saving profile details."
+      });
     } finally {
       setLoading(false);
     }
@@ -90,15 +104,27 @@ export default function SettingsPage() {
     }
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setPassword({ current: "", new: "", confirm: "" });
-      toast({
-        variant: "success",
-        title: "Password Changed",
-        description: "Your security credentials have been updated."
-      });
+      const response = await authApi.updatePassword(password.current, password.new);
+      if (response.success) {
+        setPassword({ current: "", new: "", confirm: "" });
+        toast({
+          variant: "success",
+          title: "Password Changed",
+          description: response.message || "Your security credentials have been updated."
+        });
+      } else {
+        toast({
+          variant: "danger",
+          title: "Change Failed",
+          description: response.message || "Failed to update password."
+        });
+      }
     } catch (err) {
-      // ignore
+      toast({
+        variant: "danger",
+        title: "Change Failed",
+        description: err.response?.data?.message || "An error occurred while changing password."
+      });
     } finally {
       setLoading(false);
     }

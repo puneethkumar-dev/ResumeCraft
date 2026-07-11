@@ -111,7 +111,7 @@ const updateResume = async (req, res, next) => {
     const updatedResume = await Resume.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
-      { new: true, runValidators: false }
+      { new: true, runValidators: true }
     );
 
     return res.status(200).json({

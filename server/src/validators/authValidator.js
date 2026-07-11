@@ -55,8 +55,43 @@ const validate = (req, res, next) => {
   next();
 };
 
+/**
+ * Validation rules for updating profile.
+ */
+const updateProfileRules = [
+  body('name')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Name cannot be empty'),
+  body('email')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Email cannot be empty')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail()
+];
+
+/**
+ * Validation rules for changing password.
+ */
+const updatePasswordRules = [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required'),
+  body('newPassword')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters long')
+];
+
 module.exports = {
   registerRules,
   loginRules,
+  updateProfileRules,
+  updatePasswordRules,
   validate
 };

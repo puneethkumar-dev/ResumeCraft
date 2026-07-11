@@ -60,10 +60,27 @@ export function ResumeFormProvider({ children }) {
             const sorted = [...list].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
             navigate(`/builder/${sorted[0]._id}`, { replace: true });
           } else {
-            // Auto-create a default resume on the backend
+            // Auto-create a default resume on the backend with valid default schema fields
+            const userCached = localStorage.getItem("user");
+            const currentUser = userCached ? JSON.parse(userCached) : {};
+
             const responseCreate = await resumeApi.create({
               ...emptyResumeState,
-              title: "My New Resume"
+              title: "My New Resume",
+              personalInfo: {
+                ...emptyResumeState.personalInfo,
+                fullName: currentUser.name || "Your Name",
+                email: currentUser.email || "email@example.com"
+              },
+              education: [
+                {
+                  institution: "Placeholder School",
+                  degree: "Degree",
+                  fieldOfStudy: "Field",
+                  startDate: "2020",
+                  endDate: "2024"
+                }
+              ]
             });
             const newResumeId = responseCreate.data._id;
             navigate(`/builder/${newResumeId}`, { replace: true });

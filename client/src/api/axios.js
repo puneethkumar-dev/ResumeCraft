@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Centralized Axios instance with base URL and timeout configurations
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`,
   timeout: 35000 // Allows backend AI timeout of 30 seconds to trigger first
 });
 

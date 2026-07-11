@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   FileText, LayoutDashboard, Settings, User, 
@@ -25,6 +25,8 @@ export default function DashboardLayout() {
     const cached = localStorage.getItem("user");
     return cached ? JSON.parse(cached) : { name: "User", email: "" };
   });
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,6 +66,17 @@ export default function DashboardLayout() {
     };
     fetchUserProfile();
   }, [token]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     navigate("/logout");
