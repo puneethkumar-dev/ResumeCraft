@@ -42,11 +42,18 @@ class ATSAnalysisService {
     const hasEducation = resume.education && resume.education.length > 0;
     const hasProjects = resume.projects && resume.projects.length > 0;
     const hasExperience = resume.experience && resume.experience.length > 0;
+    const hasProjectsOrExperience = hasProjects || hasExperience;
 
-    if (!hasPersonalInfo || !hasSkills || !hasEducation || !hasProjects || !hasExperience) {
+    if (!hasPersonalInfo || !hasSkills || !hasEducation || !hasProjectsOrExperience) {
+      let message = 'Complete your resume before ATS analysis.';
+      if (!hasPersonalInfo) message = 'Provide your full name and email in Personal Info.';
+      else if (!hasSkills) message = 'Add at least one skill to your profile.';
+      else if (!hasEducation) message = 'Add at least one education record.';
+      else message = 'Add at least one project or work experience entry.';
+
       return {
         status: 'incomplete_resume',
-        message: 'Complete your resume before ATS analysis.'
+        message
       };
     }
 
