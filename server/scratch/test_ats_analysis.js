@@ -53,6 +53,54 @@ const testATSAnalysis = async () => {
     }
     console.log('✓ Incomplete Resume validation rejected correctly.');
 
+    // 2b. Test Case 1b: Fresher Resume (Projects but no Experience) Validation Pass
+    const fresherResume = await Resume.create({
+      user: user._id,
+      personalInfo: { fullName: 'Fresher Tester', email: testUserEmail },
+      skills: [{ category: 'Coding', items: ['JS'] }],
+      education: [{ institution: 'Uni', degree: 'BS', fieldOfStudy: 'CS', startDate: '2020', endDate: '2024' }],
+      projects: [{ title: 'Proj', description: 'A project.' }],
+      experience: []
+    });
+
+    const atsServiceWithMock = new ATSAnalysisService({
+      analyzeATS: async () => ({ status: 'success', overallScore: 80 })
+    });
+
+    console.log('\n--- Test Case 1b: Fresher Resume (Projects, No Experience) ---');
+    const res1b = await atsServiceWithMock.analyzeATS(
+      fresherResume._id.toString(),
+      'This is a valid job description with more than 100 characters. We are looking for a Senior Software Engineer with strong experience in JavaScript, Node.js, React, and databases. We require good engineering qualifications and skills.',
+      user._id.toString()
+    );
+    console.log('Result:', res1b);
+    if (res1b.status !== 'success') {
+      throw new Error(`Expected success, got: ${res1b.status}`);
+    }
+    console.log('✓ Fresher Resume validated successfully.');
+
+    // 2c. Test Case 1c: Veteran Resume (Experience but no Projects) Validation Pass
+    const veteranResume = await Resume.create({
+      user: user._id,
+      personalInfo: { fullName: 'Veteran Tester', email: testUserEmail },
+      skills: [{ category: 'Coding', items: ['JS'] }],
+      education: [{ institution: 'Uni', degree: 'BS', fieldOfStudy: 'CS', startDate: '2020', endDate: '2024' }],
+      projects: [],
+      experience: [{ company: 'Corp', role: 'Dev', location: 'Remote', startDate: '2020', endDate: '2024', description: 'Developed stuff' }]
+    });
+
+    console.log('\n--- Test Case 1c: Veteran Resume (Experience, No Projects) ---');
+    const res1c = await atsServiceWithMock.analyzeATS(
+      veteranResume._id.toString(),
+      'This is a valid job description with more than 100 characters. We are looking for a Senior Software Engineer with strong experience in JavaScript, Node.js, React, and databases. We require good engineering qualifications and skills.',
+      user._id.toString()
+    );
+    console.log('Result:', res1c);
+    if (res1c.status !== 'success') {
+      throw new Error(`Expected success, got: ${res1c.status}`);
+    }
+    console.log('✓ Veteran Resume validated successfully.');
+
     // 3. Test Case 2: Short Job Description Validation
     // Let's create a complete resume
     const completeResume = await Resume.create({
